@@ -19,12 +19,12 @@ Custom text class to generate texts
  */
 
 public class CustomText extends Actor implements MouseListener, Debuggable {
-
+    // text & font
     BitmapFont font;
     Rectangle rect;
     private String text;
 
-    //
+    // position & vectors
     Vector2 pos1, pos2;
     public Vector2 velocity;
     Vector2 direction;

@@ -5,16 +5,20 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.Core;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.helper.ui.custom_items.CustomBackground;
+import com.gdx.main.screen.game.object.entity.Player;
+import com.gdx.main.screen.game.object.particle.Particle;
 import com.gdx.main.screen.stage.GameStage;
 import com.gdx.main.screen.stage.MenuStage;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
+import com.gdx.main.util.Stats;
 
 public class GameScreen implements Screen, Buildable {
 
@@ -23,6 +27,7 @@ public class GameScreen implements Screen, Buildable {
     Settings gs;
     Mouse mouse;
     Debugger debugger;
+    Stats stats;
 
     Viewport viewport;
     OrthographicCamera camera;
@@ -37,14 +42,17 @@ public class GameScreen implements Screen, Buildable {
     CustomBackground bg2;
     CustomBackground bg3;
 
+    // Objects
+    Player player;
+
 
     // misc
-    float beginTimer = 5f;
+    float beginTimer = 3f;
     boolean flag1 = false;
 
     public GameScreen(Core core, Manager manager, Settings gs,
                       Viewport viewport, OrthographicCamera camera,
-                      Mouse mouse, Debugger debugger) {
+                      Mouse mouse, Debugger debugger, Stats stats) {
         this.core = core;
         this.manager = manager;
         this.gs = gs;
@@ -52,6 +60,7 @@ public class GameScreen implements Screen, Buildable {
         this.camera = camera;
         this.mouse = mouse;
         this.debugger = debugger;
+        this.stats = stats;
 
         build();
     }
@@ -67,6 +76,14 @@ public class GameScreen implements Screen, Buildable {
 
     private void beginGame(float delta) {
 
+        if(beginTimer >= 3) {
+            // load UI
+        }
+        else if(beginTimer > 1.5) {
+
+
+        }
+
         if(beginTimer <= 0) {flag1 = true;}
         beginTimer -= delta;
     }
@@ -77,6 +94,15 @@ public class GameScreen implements Screen, Buildable {
         this.mainStage = new GameStage(viewport);
         this.hudStage = new GameStage(viewport);
         Gdx.input.setInputProcessor(hudStage);
+
+        // Backgrounds
+
+        // objects
+        player = new Player(viewport.getWorldWidth()/2, -20, 10,
+                new Vector2(1,0), viewport, camera, mainStage, gs, manager, stats);
+        mainStage.addActor(player);
+        debugger.add(player);
+        // HUD & UI
     }
 
     @Override
@@ -93,7 +119,7 @@ public class GameScreen implements Screen, Buildable {
         bg3.update(delta);
 
         // objects
-
+        player.update(delta, mouse);
 
         // hud & ui
 
@@ -115,17 +141,17 @@ public class GameScreen implements Screen, Buildable {
 
     @Override
     public void resize(int width, int height) {
-
+        viewport.update(width, height);
     }
 
     @Override
     public void pause() {
-
+        // For android / ios only
     }
 
     @Override
     public void resume() {
-
+        // for android / ios only
     }
 
     @Override
@@ -135,6 +161,9 @@ public class GameScreen implements Screen, Buildable {
 
     @Override
     public void dispose() {
-
+        //stages
+        backStage.dispose();
+        mainStage.dispose();
+        hudStage.dispose();
     }
 }

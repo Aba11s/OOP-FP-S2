@@ -8,7 +8,11 @@ import java.util.LinkedList;
 /* Handles all game objects */
 public class ObjectHandler {
 
-    LinkedList<GameObject> gameObjects = new LinkedList<>();
+    static LinkedList<GameObject> gameObjects = new LinkedList<>();
+
+    public static void add(GameObject obj){
+        gameObjects.add(obj);
+    }
 
     public void update(float delta, Mouse mouse) {
 

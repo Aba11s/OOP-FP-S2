@@ -77,6 +77,8 @@ public abstract class GameEntity extends Actor implements GameObject {
         this.rect = new Rectangle();
         this.rect.setSize(rectSize);
         this.rect.setCenter(center);
+
+        loadSprites();
     }
 
     protected abstract void loadSprites();

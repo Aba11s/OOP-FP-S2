@@ -48,14 +48,14 @@ public class Core extends Game {
 		debugger.add(mouse);
 
 		// sets initial screen to main menu
-		setScreen(new MenuScreen(core, manager, gs, viewport, camera, mouse, debugger));
+		setScreen(new MenuScreen(core, manager, gs, viewport, camera, mouse, debugger, stats));
 	}
 
 	@Override // root render
 	public void render() {
 		super.render();
 
-		//debugger.update();
+		debugger.update();
 		//System.out.println("running");
 	}
 }

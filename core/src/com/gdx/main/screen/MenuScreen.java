@@ -15,6 +15,7 @@ import com.gdx.main.helper.ui.custom_items.CustomText;
 import com.gdx.main.screen.stage.MenuStage;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
+import com.gdx.main.util.Stats;
 
 
 public class MenuScreen implements Screen, Buildable {
@@ -24,6 +25,7 @@ public class MenuScreen implements Screen, Buildable {
     Settings gs;
     Mouse mouse;
     Debugger debugger;
+    Stats stats;
 
     Viewport viewport;
     OrthographicCamera camera;
@@ -44,11 +46,11 @@ public class MenuScreen implements Screen, Buildable {
 
     // transition
     boolean transition = false;
-    float transitionTimer = 2f; // in seconds
+    float transitionTimer = 1.5f; // in seconds
 
     public MenuScreen(Core core, Manager manager, Settings gs,
                       Viewport viewport, OrthographicCamera camera,
-                      Mouse mouse, Debugger debugger) {
+                      Mouse mouse, Debugger debugger, Stats stats) {
         this.core = core;
         this.manager = manager;
         this.gs = gs;
@@ -56,6 +58,7 @@ public class MenuScreen implements Screen, Buildable {
         this.camera = camera;
         this.mouse = mouse;
         this.debugger = debugger;
+        this.stats = stats;
 
         build();
     }
@@ -120,7 +123,7 @@ public class MenuScreen implements Screen, Buildable {
     }
 
     private void transitionScreen(float delta) {
-        if(transitionTimer >= 2) {
+        if(transitionTimer >= 1.5) {
             headText.setAcceleration(500f);
             playText.setAcceleration(500f);
             exitText.setAcceleration(500f);
@@ -135,7 +138,7 @@ public class MenuScreen implements Screen, Buildable {
     }
 
     private void switchScreen() {
-        GameScreen gameScreen = new GameScreen(core, manager, gs, viewport, camera, mouse, debugger);
+        GameScreen gameScreen = new GameScreen(core, manager, gs, viewport, camera, mouse, debugger, stats);
         gameScreen.loadPreviousBackground(bg1,bg2,bg3);
         core.setScreen(gameScreen);
 
