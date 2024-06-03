@@ -103,7 +103,6 @@ public class Player extends GameEntity{
         }
 
         System.out.println(
-                new Matrix3()
         );
     }
 
