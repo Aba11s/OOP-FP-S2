@@ -9,81 +9,185 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.helper.misc.Mouse;
+import com.gdx.main.screen.game.object.cannon.BasicCannon;
+import com.gdx.main.screen.game.object.cannon.Cannon;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
 
 public class Player extends GameEntity{
 
+    // settings variables
     private final float acceleration;
     private final float rotationSpeed;
     private final float maxSpeed;
     private final float speedDecay;
-    public final float hp, dmg;
+
+    public float hp, dmg;
+    private float alpha = 1;
+
+    // states
+    private boolean inTransition;
+
+    // Cannon
+    private Cannon cannon1;
+    private Cannon cannon2;
+
 
     public Player(float x, float y, float rectSize, Vector2 initialDirection,
                   Viewport viewport, OrthographicCamera camera, Stage stage,
-                  Settings sets, Manager manager, Stats stats) {
-        super(x, y, rectSize, initialDirection, viewport, camera, stage, sets, manager, stats);
+                  Settings gs, Manager manager, Stats stats) {
+        super(x, y, rectSize, initialDirection, viewport, camera, stage, gs, manager, stats);
 
-        // initial velocity for transiiton
-        velocity.set(0,300f);
-        direction.set(0,1);
-
-        // import from gs
-        acceleration = 300f;
+        // import from game settings
+        acceleration = 400f;
         rotationSpeed = 200f;
-        maxSpeed = 300f;
-        speedDecay = .98f;
+        maxSpeed = 200f;
+        speedDecay = .985f * 60;
         hp = 100;
         dmg = 0;
+
+        // initial velocity and direction during screen transition
+        velocity.set(0f, maxSpeed);
+        direction.set(0,1);
+
+        inTransition = true;
+
+        // setups cannon
+        cannon1 = new BasicCannon(true, center, new Vector2(6, 8), stage, gs, manager);
+        cannon2 = new BasicCannon(true, center, new Vector2(-6, 8), stage, gs, manager);
     }
 
+    public Vector2 getCenter() {
+        return center;
+    }
+
+    // loads textures, particles, etc
     @Override
     protected void loadSprites() {
         // manually load assets
-        baseRegion = new TextureRegion(new Texture(
-                "textures/object/entity/player/player-ship-1.png"));
+        baseRegions = new TextureRegion[] {
+                new TextureRegion(new Texture("textures/object/entity/player/player-ship-1.png")),
+                new TextureRegion(new Texture("textures/object/entity/player/player-ship-2.png")),
+                new TextureRegion(new Texture("textures/object/entity/player/player-ship-3.png")),
+                new TextureRegion(new Texture("textures/object/entity/player/player-ship-4.png"))
+        };
+
+        baseRegion = baseRegions[0];
         baseSprite = new Sprite(baseRegion);
         baseSprite.setCenter(center.x, center.y);
         baseSprite.setRotation(rotation);
     }
 
+    // checks if cannon should be fired
+    private void checkFire() {
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            cannon1.fire();
+            cannon2.fire();
+        }
+    }
+
+    // Teleport player to opposite side of world if
+    // it goes off-screen
+    private void wrapWorld() {
+        if(!inTransition) {
+            if (center.x < -20) {
+                center.x = viewport.getWorldWidth() + 10;
+            }
+            if (center.x > viewport.getWorldWidth() + 20) {
+                center.x = -10;
+            }
+            if (center.y < -20) {
+                center.y = viewport.getWorldHeight() + 10;
+            }
+            if (center.y > viewport.getWorldHeight() + 20) {
+                center.y = -10;
+            }
+        }
+    }
+
     // Updates player movement
     private void move() {
         /* It is important to multiply everything with delta */
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
+        if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)
+        || Gdx.input.isKeyPressed(Input.Keys.W)) {
+            // If button pressed is pressed, accelerate along the direction vector
             velocity.add(direction.x * acceleration * delta, direction.y * acceleration * delta);
             velocity.clamp(0, maxSpeed);
-        } else {
-            velocity.x *= speedDecay;
-            velocity.y *= speedDecay;
         }
+        // reduce velocity by a percentage each iteration
+        velocity.set(velocity.x * speedDecay * delta, velocity.y * speedDecay * delta);
+
+        // updates position relative to its center
         center.add(velocity.x * delta, velocity.y * delta);
         rect.setCenter(center);
-        baseSprite.setRotation(rotation);
+
+        // updates sprite position
         baseSprite.setCenter(center.x, center.y);
+        baseSprite.setAlpha(alpha);
     }
+
+    private void realisticMove() {}
+
 
     // Updates player rotation towards mouse cursor
     private void rotate(Mouse mouse) {
+        // sets target vector by subtracting mouse position vector
+        // and center position vector
         target.set(mouse.x - center.x, mouse.y - center.y);
 
         // gets angle from vectors and difference between them
+        // whilst accounting for angles > 360 or < 0;
         float currentAngle = direction.angleDeg();
         float targetAngle = target.angleDeg();
-        float deltaAngle = (((currentAngle - targetAngle) % 360) + 360) % 360; // keeps value between 0 and 360 !IMPORTANT
+        float deltaAngle = (((currentAngle - targetAngle) % 360) + 360) % 360; // keeps value between 0 and 360
+        float deltaAngle2 = (((targetAngle - currentAngle) % 360) + 360) % 360;
+        float minDelta = Math.min(deltaAngle, deltaAngle2);
 
-        // determines whether to rotate clockwise or anti-clockwise, whichever is more efficient
-        currentAngle = (deltaAngle > 180) ? currentAngle + (rotationSpeed * delta) : currentAngle - (rotationSpeed * delta);
+
+        if (minDelta > 3) {
+            // determines whether to rotate clockwise or anti-clockwise, whichever is more efficient
+            currentAngle = (deltaAngle > 180) ? currentAngle + (rotationSpeed * delta) : currentAngle - (rotationSpeed * delta);
+        } else {
+            // sets angle to target angle if the delta is too small
+            // prevents weird jitters
+            currentAngle = targetAngle;
+        }
+        // updates direction based on new rotation
         rotation = currentAngle - 90;
         direction.setAngleDeg(currentAngle);
+
+        // updates sprite rotation
+        baseSprite.setRotation(rotation);
+    }
+
+    @Override
+    public void update(float delta, Mouse mouse) {
+        super.update(delta, mouse);
+
+        // if player is still alive
+        if(isAlive) {
+            cannon1.update(this.delta, center, direction);
+            cannon2.update(this.delta, center, direction);
+            checkFire();
+            rotate(mouse);
+            //realisticMove();
+            move();
+            wrapWorld();
+        }
+
+        if(inTransition) {
+            if(center.y > 0) {inTransition = false;}
+        }
+    }
+
+    @Override
+    public void draw(Batch batch, float parentAlpha) {
+        baseSprite.draw(batch);
     }
 
     @Override // Debuggable
@@ -92,22 +196,5 @@ public class Player extends GameEntity{
         shape.setColor(Color.RED);
         shape.rect(rect.x, rect.y, rect.width, rect.height);
         shape.end();
-    }
-
-    @Override
-    public void update(float delta, Mouse mouse) {
-        this.delta = delta;
-        if(isAlive) {
-            rotate(mouse);
-            move();
-        }
-
-        System.out.println(
-        );
-    }
-
-    @Override
-    public void draw(Batch batch, float parentAlpha) {
-        baseSprite.draw(batch);
     }
 }

@@ -82,20 +82,19 @@ public class MenuScreen implements Screen, Buildable {
         backStage.addActor(bg3);
         debugger.add(bg3);
 
-
-
         /* MenuStage */
+
+        // title text
         headText = new CustomText("Fortnite Redux", "fonts/Minecraft.ttf",
                 viewport.getWorldWidth()/2, viewport.getWorldHeight() - 100, true,
                 20,20,100, Color.WHITE);
         menuStage.addActor(headText);
         debugger.add(headText);
 
-
+        // start text button
         playText = new CustomText("START", "fonts/Minecraft.ttf",
                 viewport.getWorldWidth()/2, viewport.getWorldHeight() - 280, true,
                 30,20,48, Color.WHITE) {
-
             @Override
             public void action() {setColor(Color.WHITE);}
             @Override
@@ -106,7 +105,7 @@ public class MenuScreen implements Screen, Buildable {
         menuStage.addActor(playText);
         debugger.add(playText);
 
-
+        // Exit text button
         exitText = new CustomText("EXIT", "fonts/Minecraft.ttf",
                 viewport.getWorldWidth()/2, viewport.getWorldHeight() - 400, true,
                 30,20,48, Color.WHITE) {
@@ -128,9 +127,6 @@ public class MenuScreen implements Screen, Buildable {
             playText.setAcceleration(500f);
             exitText.setAcceleration(500f);
         }
-        else if(transitionTimer >= 1) {
-
-        }
         else if (transitionTimer <= 0) {
             switchScreen();
         }
@@ -145,8 +141,7 @@ public class MenuScreen implements Screen, Buildable {
         this.dispose();
     }
 
-
-
+    /* --- Render & Updates --- */
 
     private void update(float delta) {
         mouse.update();

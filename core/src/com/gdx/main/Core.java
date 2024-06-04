@@ -30,10 +30,12 @@ public class Core extends Game {
 
 	@Override // Initialize stuffs
 	public void create() {
+		// setups util classes
 		manager = new Manager();
 		gs = new Settings();
 		stats = new Stats();
 
+		// setups camera
 		screenWidth = Gdx.graphics.getWidth();
 		screenHeight = Gdx.graphics.getHeight();
 		camera = new OrthographicCamera();
@@ -43,6 +45,7 @@ public class Core extends Game {
 		viewport = new FitViewport(screenWidth, screenHeight);
 		viewport.setCamera(camera);
 
+		// setups debugger and mouse
 		debugger = new Debugger(camera);
 		mouse = new Mouse(viewport);
 		debugger.add(mouse);
@@ -54,8 +57,6 @@ public class Core extends Game {
 	@Override // root render
 	public void render() {
 		super.render();
-
 		debugger.update();
-		//System.out.println("running");
 	}
 }

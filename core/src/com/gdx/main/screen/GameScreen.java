@@ -12,6 +12,10 @@ import com.gdx.main.Core;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.helper.ui.custom_items.CustomBackground;
+import com.gdx.main.screen.game.handler.EntityHandler;
+import com.gdx.main.screen.game.handler.ProjectileHandler;
+import com.gdx.main.screen.game.object.entity.EnemyScout;
+import com.gdx.main.screen.game.object.entity.GameEntity;
 import com.gdx.main.screen.game.object.entity.Player;
 import com.gdx.main.screen.game.object.particle.Particle;
 import com.gdx.main.screen.stage.GameStage;
@@ -32,6 +36,10 @@ public class GameScreen implements Screen, Buildable {
     Viewport viewport;
     OrthographicCamera camera;
 
+    // Handlers
+    EntityHandler entityHandler;
+    ProjectileHandler projectileHandler;
+
     // Stage
     GameStage backStage; // backgrounds
     GameStage mainStage; // objects
@@ -45,6 +53,7 @@ public class GameScreen implements Screen, Buildable {
     // Objects
     Player player;
 
+    GameEntity testEntity;
 
     // misc
     float beginTimer = 3f;
@@ -81,7 +90,6 @@ public class GameScreen implements Screen, Buildable {
         }
         else if(beginTimer > 1.5) {
 
-
         }
 
         if(beginTimer <= 0) {flag1 = true;}
@@ -95,6 +103,10 @@ public class GameScreen implements Screen, Buildable {
         this.hudStage = new GameStage(viewport);
         Gdx.input.setInputProcessor(hudStage);
 
+        // Handlers
+        projectileHandler = new ProjectileHandler(viewport);
+        entityHandler = new EntityHandler();
+
         // Backgrounds
 
         // objects
@@ -102,6 +114,10 @@ public class GameScreen implements Screen, Buildable {
                 new Vector2(1,0), viewport, camera, mainStage, gs, manager, stats);
         mainStage.addActor(player);
         debugger.add(player);
+        entityHandler.setPlayer(player);
+
+        testEntity = new EnemyScout(player, 100, 100, 10,
+                new Vector2(1,0), viewport, camera, mainStage, gs, manager, stats);
         // HUD & UI
     }
 
@@ -113,13 +129,14 @@ public class GameScreen implements Screen, Buildable {
     private void update(float delta) {
         mouse.update();
 
+        // handlers
+        projectileHandler.update(delta);
+        entityHandler.update(delta, mouse);
+
         // backgrounds
         bg1.update(delta);
         bg2.update(delta);
         bg3.update(delta);
-
-        // objects
-        player.update(delta, mouse);
 
         // hud & ui
 
@@ -142,6 +159,7 @@ public class GameScreen implements Screen, Buildable {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
+        viewport.apply();
     }
 
     @Override
