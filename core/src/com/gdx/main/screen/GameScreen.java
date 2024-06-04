@@ -111,13 +111,13 @@ public class GameScreen implements Screen, Buildable {
 
         // objects
         player = new Player(viewport.getWorldWidth()/2, -20, 10,
-                new Vector2(1,0), viewport, camera, mainStage, gs, manager, stats);
+                new Vector2(1,0), viewport, camera, mainStage, debugger, gs, manager, stats);
         mainStage.addActor(player);
         debugger.add(player);
         entityHandler.setPlayer(player);
 
         testEntity = new EnemyScout(player, 100, 100, 10,
-                new Vector2(1,0), viewport, camera, mainStage, gs, manager, stats);
+                new Vector2(1,0), viewport, camera, mainStage, debugger, gs, manager, stats);
         // HUD & UI
     }
 

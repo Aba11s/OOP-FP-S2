@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
@@ -23,14 +24,16 @@ public class EnemyScout extends GameEntity {
     private float speed;
     private float hp, dmg;
 
-    public EnemyScout(Player player, float x, float y, float rectSize, Vector2 initialDirection, Viewport viewport, OrthographicCamera camera, Stage stage, Settings gs, Manager manager, Stats stats) {
-        super(x, y, rectSize, initialDirection, viewport, camera, stage, gs, manager, stats);
+    public EnemyScout(Player player, float x, float y, float rectSize, Vector2 initialDirection,
+                      Viewport viewport, OrthographicCamera camera, Stage stage,
+                      Debugger debugger, Settings gs, Manager manager, Stats stats) {
+        super(x, y, rectSize, initialDirection, viewport, camera, stage, debugger, gs, manager, stats);
         this.player = player;
 
         // default settings
         isAlive = true;
-        rotationSpeed = 50f;
-        maxSpeed = 80f;
+        rotationSpeed = 100f;
+        maxSpeed = 120f;
         speed = maxSpeed;
         hp = 100;
         dmg = 0;
@@ -73,15 +76,22 @@ public class EnemyScout extends GameEntity {
         float deltaAngle2 = (((targetAngle - currentAngle) % 360) + 360) % 360;
         float minDelta = Math.min(deltaAngle, deltaAngle2);
 
+        // scales speed according to delta
+        speed = maxSpeed;
+        speed = speed * (1 - minDelta/180);
+
+        // scales rotation speed according to delta
+        float scaledRotationSpeed = rotationSpeed * (2*maxSpeed/(speed + maxSpeed));
+
         // decides wether to turn clockwise or anti-clockwise
-        currentAngle = (deltaAngle > 180) ? currentAngle + (rotationSpeed * delta) : currentAngle - (rotationSpeed * delta);
+        currentAngle = (deltaAngle > 180) ? currentAngle + (scaledRotationSpeed * delta) : currentAngle - (scaledRotationSpeed * delta);
 
         // sets rotation and direction
         rotation = currentAngle - 90;
         direction.setAngleDeg(currentAngle);
         baseSprite.setRotation(rotation);
 
-        System.out.println(speed);
+        System.out.println(scaledRotationSpeed);
 
     }
 

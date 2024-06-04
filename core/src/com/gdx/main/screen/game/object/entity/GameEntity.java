@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.object.GameObject;
@@ -59,7 +60,7 @@ public abstract class GameEntity extends Actor implements GameObject {
     public GameEntity(
             float x, float y, float rectSize, Vector2 initialDirection,
             Viewport viewport, OrthographicCamera camera, Stage stage,
-            Settings gs, Manager manager, Stats stats
+            Debugger debugger, Settings gs, Manager manager, Stats stats
     ) {
         // loads parameter
         this.gs = gs;
@@ -83,6 +84,7 @@ public abstract class GameEntity extends Actor implements GameObject {
         // adds to handlers
         this.stage.addActor(this);
         EntityHandler.add(this);
+        debugger.add(this);
 
         loadSprites();
     }

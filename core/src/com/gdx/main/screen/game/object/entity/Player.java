@@ -11,7 +11,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.object.cannon.BasicCannon;
 import com.gdx.main.screen.game.object.cannon.Cannon;
@@ -40,14 +42,14 @@ public class Player extends GameEntity{
 
     public Player(float x, float y, float rectSize, Vector2 initialDirection,
                   Viewport viewport, OrthographicCamera camera, Stage stage,
-                  Settings gs, Manager manager, Stats stats) {
-        super(x, y, rectSize, initialDirection, viewport, camera, stage, gs, manager, stats);
+                  Debugger debugger, Settings gs, Manager manager, Stats stats) {
+        super(x, y, rectSize, initialDirection, viewport, camera, stage, debugger, gs, manager, stats);
 
         // import from game settings
         acceleration = 400f;
         rotationSpeed = 200f;
         maxSpeed = 200f;
-        speedDecay = .985f * 60;
+        speedDecay = -0.012f * 60;
         hp = 100;
         dmg = 0;
 
@@ -120,8 +122,11 @@ public class Player extends GameEntity{
             velocity.clamp(0, maxSpeed);
         }
         // reduce velocity by a percentage each iteration
-        velocity.set(velocity.x * speedDecay * delta, velocity.y * speedDecay * delta);
-
+        else {
+            velocity.set(
+                    velocity.x + (velocity.x * speedDecay * delta),
+                    velocity.y + (velocity.y * speedDecay * delta));
+        }
         // updates position relative to its center
         center.add(velocity.x * delta, velocity.y * delta);
         rect.setCenter(center);
@@ -148,13 +153,13 @@ public class Player extends GameEntity{
         float deltaAngle2 = (((targetAngle - currentAngle) % 360) + 360) % 360;
         float minDelta = Math.min(deltaAngle, deltaAngle2);
 
-
-        if (minDelta > 3) {
+        // approximates angles near 0 to be equal to 0
+        // important to prevent jitters at low deltas
+        if (minDelta > rotationSpeed * delta) {
             // determines whether to rotate clockwise or anti-clockwise, whichever is more efficient
             currentAngle = (deltaAngle > 180) ? currentAngle + (rotationSpeed * delta) : currentAngle - (rotationSpeed * delta);
         } else {
-            // sets angle to target angle if the delta is too small
-            // prevents weird jitters
+            // sets angle to target angle
             currentAngle = targetAngle;
         }
         // updates direction based on new rotation
