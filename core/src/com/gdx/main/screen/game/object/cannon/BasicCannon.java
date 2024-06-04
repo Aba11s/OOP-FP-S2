@@ -14,7 +14,7 @@ public class BasicCannon extends Cannon {
         super(isFriendly, center, offset, stage, gs, manager);
 
         // default settings
-        fireRate = 1f;
+        fireRate = 2.5f;
     }
 
     @Override

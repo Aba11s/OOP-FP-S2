@@ -32,7 +32,7 @@ public class EnemyScout extends GameEntity {
 
         // default settings
         isAlive = true;
-        rotationSpeed = 100f;
+        rotationSpeed = 200f;
         maxSpeed = 120f;
         speed = maxSpeed;
         hp = 100;
@@ -78,10 +78,10 @@ public class EnemyScout extends GameEntity {
 
         // scales speed according to delta
         speed = maxSpeed;
-        speed = speed * (1 - minDelta/180);
+        speed = speed * (1 - (minDelta)/180 * 1/1.5f);
 
-        // scales rotation speed according to delta
-        float scaledRotationSpeed = rotationSpeed * (2*maxSpeed/(speed + maxSpeed));
+        // scales rotation according to delta
+        float scaledRotationSpeed = rotationSpeed * ((minDelta)/180);
 
         // decides wether to turn clockwise or anti-clockwise
         currentAngle = (deltaAngle > 180) ? currentAngle + (scaledRotationSpeed * delta) : currentAngle - (scaledRotationSpeed * delta);
@@ -90,9 +90,6 @@ public class EnemyScout extends GameEntity {
         rotation = currentAngle - 90;
         direction.setAngleDeg(currentAngle);
         baseSprite.setRotation(rotation);
-
-        System.out.println(scaledRotationSpeed);
-
     }
 
     @Override

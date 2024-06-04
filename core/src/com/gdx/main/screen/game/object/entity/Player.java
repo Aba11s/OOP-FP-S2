@@ -96,20 +96,19 @@ public class Player extends GameEntity{
     // Teleport player to opposite side of world if
     // it goes off-screen
     private void wrapWorld() {
-        if(!inTransition) {
-            if (center.x < -20) {
-                center.x = viewport.getWorldWidth() + 10;
-            }
-            if (center.x > viewport.getWorldWidth() + 20) {
-                center.x = -10;
-            }
-            if (center.y < -20) {
-                center.y = viewport.getWorldHeight() + 10;
-            }
-            if (center.y > viewport.getWorldHeight() + 20) {
-                center.y = -10;
-            }
+        if (center.x < -20) {
+            center.x = viewport.getWorldWidth() + 10;
         }
+        if (center.x > viewport.getWorldWidth() + 20) {
+            center.x = -10;
+        }
+        if (center.y < -20) {
+            center.y = viewport.getWorldHeight() + 10;
+        }
+        if (center.y > viewport.getWorldHeight() + 20) {
+            center.y = -10;
+        }
+
     }
 
     // Updates player movement
@@ -118,6 +117,7 @@ public class Player extends GameEntity{
         if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)
         || Gdx.input.isKeyPressed(Input.Keys.W)) {
             // If button pressed is pressed, accelerate along the direction vector
+            direction.nor();
             velocity.add(direction.x * acceleration * delta, direction.y * acceleration * delta);
             velocity.clamp(0, maxSpeed);
         }
@@ -176,17 +176,15 @@ public class Player extends GameEntity{
 
         // if player is still alive
         if(isAlive) {
+            // update cannons
             cannon1.update(this.delta, center, direction);
             cannon2.update(this.delta, center, direction);
             checkFire();
+
+            // updates movement
             rotate(mouse);
-            //realisticMove();
             move();
             wrapWorld();
-        }
-
-        if(inTransition) {
-            if(center.y > 0) {inTransition = false;}
         }
     }
 
