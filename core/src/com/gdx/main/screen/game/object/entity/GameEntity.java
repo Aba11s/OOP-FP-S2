@@ -1,5 +1,6 @@
 package com.gdx.main.screen.game.object.entity;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,9 +13,12 @@ import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.object.GameObject;
+import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
+
+import java.util.ArrayList;
 
 public abstract class GameEntity extends Actor implements GameObject {
 
@@ -29,7 +33,6 @@ public abstract class GameEntity extends Actor implements GameObject {
     protected Stage stage;
 
     // -- Logics -- //
-    // delta time
     protected float delta;
 
     // vectors and rect
@@ -37,28 +40,36 @@ public abstract class GameEntity extends Actor implements GameObject {
     protected Vector2 direction;
     protected Vector2 target;
     protected Vector2 velocity;
-    protected Rectangle rect;
     protected float rotation;
+    public Rectangle rect;
 
     // states
-    protected boolean isAlive = true;
-    protected boolean isPlayer = false;
-    protected boolean isCollided = false;
+    public boolean isPlayer = false;
+    public boolean isDense = true;
+    public boolean isAlive = true;
+    public boolean isActive = false;
     protected boolean isInvincible = false;
-    protected boolean isDense = true;
-    protected boolean toRemove = false;
+
+    protected ArrayList<Projectile> collideWith = new ArrayList<>();
+
+    public float hp, dmg;
 
     // -- Sprite -- //
     protected TextureRegion baseRegion;
     protected TextureRegion[] baseRegions;
     protected TextureRegion[] particleRegions;
-    protected TextureRegion[] deathRegions;
     protected Sprite baseSprite;
     protected Sprite particleSprite;
-    protected Sprite deathSprite;
+
+    protected int frameIndex = 0;
+    protected float frameIncrement = 0;
+
+    // -- Sound -- //
+    protected Sound deathSFX;
+    protected boolean isPlayed = false;
 
     public GameEntity(
-            float x, float y, float rectSize, Vector2 initialDirection,
+            float x, float y, Vector2 initialDirection,
             Viewport viewport, OrthographicCamera camera, Stage stage,
             Debugger debugger, Settings gs, Manager manager, Stats stats
     ) {
@@ -78,24 +89,24 @@ public abstract class GameEntity extends Actor implements GameObject {
 
         // setup hitbox
         this.rect = new Rectangle();
-        this.rect.setSize(rectSize);
+        this.rect.setSize(10,10); // default
         this.rect.setCenter(center);
 
         // adds to handlers
         this.stage.addActor(this);
         EntityHandler.add(this);
-        debugger.add(this);
+        Debugger.add(this);
 
         loadSprites();
     }
+
     protected abstract void loadSprites();
 
-    @Override
-    public void update(float delta, Mouse mouse) {
-        this.delta = delta;
-        if(toRemove) {
-            this.remove();
-            EntityHandler.remove(this);
-        }
-    }
+    public abstract void collide(GameEntity entity);
+
+    public abstract void collide(Projectile projectile);
+
+    public abstract void kill(); // force remove
+
+    public abstract void update(float delta, Mouse mouse);
 }

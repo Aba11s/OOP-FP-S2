@@ -1,6 +1,7 @@
 package com.gdx.main.screen.game.object.projectile;
 
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -8,25 +9,28 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
+import com.gdx.main.screen.game.handler.ProjectileHandler;
+import com.gdx.main.screen.game.object.entity.GameEntity;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
-import com.gdx.main.util.Stats;
 
-public class BasicBullet extends Projectile{
+public class BasicBullet2 extends Projectile{
 
-    public BasicBullet(boolean isFriendly, float x, float y, float rectSize, Vector2 initialDirection,
-                       Stage stage, Settings sets, Manager manager) {
-        super(isFriendly, x, y, rectSize, initialDirection, stage, sets, manager);
+    public BasicBullet2(boolean isFriendly, float x, float y, float rectSize, Vector2 initialDirection,
+                        Stage stage, Settings gs, Manager manager) {
+        super(isFriendly, x, y, rectSize, initialDirection, stage, gs, manager);
 
         // default settings
-        velocity = 700f;
-        damage = 100f;
-        scale = 0.3f;
+        velocity = gs.bullet2Speed;
+        damage = gs.bullet2Damage;
+        scale = gs.bullet2Scale;
 
-        // load texture
+        // load assets
         loadSprites();
+        loadAudio();
+
         // rotate
         rotate();
 
@@ -37,12 +41,36 @@ public class BasicBullet extends Projectile{
         baseRegions = new TextureRegion[] {
                 new TextureRegion(new Texture("01.png"))
         };
-
         baseRegion = baseRegions[0];
         baseSprite = new Sprite(baseRegion);
         baseSprite.setCenter(center.x, center.y);
         baseSprite.setRotation(rotation);
         baseSprite.setScale(scale);
+    }
+
+    @Override
+    protected void loadAudio() {
+        impact = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/impact-1.mp3"));
+    }
+
+    // collision
+    @Override
+    public void collide(GameEntity entity) {
+        if(entity.isDense) {isAlive = false;}
+    }
+
+    private void death() {
+        long id = impact.play();
+        impact.setVolume(id, 0.1f);
+        impact.setPitch(id, 3f);
+        kill();
+    }
+
+    public void kill() {
+        isAlive = false;
+        this.remove();
+        ProjectileHandler.remove(this);
+        Debugger.remove(this);
     }
 
     // updates position
@@ -64,8 +92,12 @@ public class BasicBullet extends Projectile{
 
     @Override
     public void update(float delta, Mouse mouse) {
-        super.update(delta, mouse);
+        this.delta = delta;
+
         move();
+        if(!isAlive) {
+            death();
+        }
     }
 
     @Override
@@ -75,6 +107,11 @@ public class BasicBullet extends Projectile{
 
     @Override
     public void debug(ShapeRenderer shape) {
-
+        if(isAlive) {
+            shape.begin(ShapeRenderer.ShapeType.Line);
+            shape.setColor(Color.RED);
+            shape.rect(rect.x, rect.y, rect.width, rect.height);
+            shape.end();
+        }
     }
 }
