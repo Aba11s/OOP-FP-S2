@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.gdx.main.screen.game.object.projectile.BasicBullet;
+import com.gdx.main.screen.game.object.projectile.ChargingBullet;
+import com.gdx.main.screen.game.object.projectile.HeavyBullet;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 
@@ -23,9 +25,14 @@ public class ChargeCannon extends Cannon {
     private float chargeTime;
     private float chargeTimer;
 
+    ChargingBullet chargingBullet;
+
+    public Vector2 chargedPosition;
     private Vector2 chargeProjectileOffset;
     private float chargeProjectileScale;
     private float chargeProjectileBaseScale;
+
+    private boolean spawnedChargeProjectile;
 
     public ChargeCannon(boolean isFriendly, Vector2 center, Vector2 offset,
                        Stage stage, Stage subStage, Settings gs, Manager manager) {
@@ -40,9 +47,12 @@ public class ChargeCannon extends Cannon {
         reloadTimer = 0;
         chargeTimer = 0;
 
+        chargedPosition = new Vector2();
         chargeProjectileOffset = new Vector2(0,40);
         chargeProjectileBaseScale = 1f;
         chargeProjectileScale = chargeProjectileBaseScale;
+
+        spawnedChargeProjectile = false;
 
         shootSFX = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/laser-1.wav"));
         volume = 0.1f;
@@ -62,10 +72,11 @@ public class ChargeCannon extends Cannon {
     }
 
     private void stateCheck() {
-
+        // Only God knows what's happening here
         switch (state) {
             case RELOADING:
                 if(reloadTimer >= reloadTime) {
+                    spawnNewCharged();
                     state = State.CHARGING;
                     reloadTimer = 0;
                 } else {
@@ -74,10 +85,14 @@ public class ChargeCannon extends Cannon {
                 break;
             case CHARGING:
                 if(chargeTimer >= chargeTime) {
+                    chargingBullet.kill();
+                    chargeProjectileScale = chargeProjectileBaseScale;
                     state = State.FIRE;
                     chargeTimer = 0;
                 } else {
-                    chargeProjectile();
+                    chargedPosition.set(center.add(offset.setAngleDeg(direction.angleDeg() + offsetAngle)));
+                    chargeProjectileScale += 0.5f * delta;
+                    chargingBullet.chargeUpdate(chargedPosition, chargeProjectileScale);
                     chargeTimer += delta;
                 }
                 break;
@@ -88,42 +103,47 @@ public class ChargeCannon extends Cannon {
         }
     }
 
-    public void chargeProjectile() {
-        chargeProjectileScale += 0.5f * delta;
+    private void spawnNewCharged() {
+        chargedPosition.set(center.add(offset.setAngleDeg(direction.angleDeg() + offsetAngle)));
+        chargingBullet = new ChargingBullet(
+                false, chargedPosition.x, chargedPosition.y, size, direction,
+                stage, subStage, gs, manager);
     }
 
     @Override
     public void fire() {
-        if(timer > 1/fireRate) {
-            // adjust bullet spawn pos according to the offset
-            spawnPos.set(center.add(offset.setAngleDeg(direction.angleDeg() + offsetAngle)));
+        // adjust bullet spawn pos according to the offset
+        spawnPos.set(center.add(offset.setAngleDeg(direction.angleDeg() + offsetAngle)));
 
-            // creates new bullet - this settings by default
-            // call setter methods to change variables
-            BasicBullet newBullet = new BasicBullet(
-                    isFriendly ,spawnPos.x, spawnPos.y, size,
-                    direction, stage, subStage, gs, manager);
+        // creates new bullet - this settings by default
+        // call setter methods to change variables
+        BasicBullet newBullet = new BasicBullet(
+                isFriendly ,spawnPos.x, spawnPos.y, size,
+                direction, stage, subStage, gs, manager);
 
-            // overrides default settings
-            newBullet.setSettings(speed, damage, size);
-            newBullet.setTexture(bulletTexture, scale);
-            newBullet.setSFX(bulletSFX, bulletSFXVolume, bulletSFXPitch);
+        // overrides default settings
+        newBullet.setSettings(speed, damage, size);
+        newBullet.setTexture(bulletTexture, scale);
+        newBullet.setSFX(bulletSFX, bulletSFXVolume, bulletSFXPitch);
 
-            // play sound
-            long id = shootSFX.play();
-            shootSFX.setVolume(id, volume);
-            shootSFX.setPitch(id, pitch);
+        // play sound
+        long id = shootSFX.play();
+        shootSFX.setVolume(id, volume);
+        shootSFX.setPitch(id, pitch);
 
-            // resets timer
-            timer = 0;
-        }
+        // resets timer
+        timer = 0;
+
     }
 
     @Override
     public void update(float delta, Vector2 center, Vector2 direction) {
+        stateCheck();
         this.delta = delta;
         this.center.set(center);
         this.direction.set(direction);
+
+        System.out.println(state);
     }
 }
 

@@ -17,8 +17,8 @@ public abstract class Cannon {
     protected Stage subStage;
 
     // position and rotation
-    protected Vector2 center;
-    protected Vector2 offset;
+    public Vector2 center;
+    public Vector2 offset;
     protected Vector2 direction;
     protected Vector2 spawnPos;
     protected float offsetAngle;

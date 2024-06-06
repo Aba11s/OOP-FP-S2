@@ -3,7 +3,7 @@ package com.gdx.main.util;
 public class Settings {
 
     // -- Game settings -- //
-    public float initialSpawnDelay = 5f;
+    public float initialSpawnDelay = 50000000f;
 
     /*
     OBJECTS
@@ -46,6 +46,10 @@ public class Settings {
     public float bullet2Damage = 10f;
     public float bullet2Size = 6f;
     public float bullet2Scale = 0.3f;
+
+    // CHARGING-BULLET
+    public float bulletCInitialSize = 10f;
+    public float bulletCDamage = 20f;
 
     // BIG-BULLET-1
     public float bigBullet1Speed = 300f;

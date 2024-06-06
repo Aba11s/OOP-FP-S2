@@ -15,6 +15,7 @@ import com.gdx.main.helper.ui.custom_items.CustomBackground;
 import com.gdx.main.screen.game.handler.CollisionHandler;
 import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.handler.ProjectileHandler;
+import com.gdx.main.screen.game.object.entity.EnemyCharger;
 import com.gdx.main.screen.game.object.entity.EnemyScout;
 import com.gdx.main.screen.game.object.entity.GameEntity;
 import com.gdx.main.screen.game.object.entity.Player;
@@ -125,6 +126,9 @@ public class GameScreen implements Screen, Buildable {
 
         entityHandler.setPlayer(player);
         collisionHandler.setPlayer(player);
+
+        testEntity = new EnemyCharger(player, 100, 100, new Vector2(0,1),
+                viewport, camera, mainStage, subStage, debugger, gs, manager, stats);
     }
 
     private void update(float delta) {

@@ -37,7 +37,7 @@ public abstract class GameEntity extends Actor implements GameObject {
     protected float delta;
 
     // vectors and rect
-    protected Vector2 center;
+    public Vector2 center;
     protected Vector2 direction;
     protected Vector2 target;
     protected Vector2 velocity;
