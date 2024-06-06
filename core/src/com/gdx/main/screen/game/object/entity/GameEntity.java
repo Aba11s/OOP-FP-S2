@@ -31,6 +31,7 @@ public abstract class GameEntity extends Actor implements GameObject {
     protected Viewport viewport;
     protected OrthographicCamera camera;
     protected Stage stage;
+    protected Stage subStage;
 
     // -- Logics -- //
     protected float delta;
@@ -70,7 +71,7 @@ public abstract class GameEntity extends Actor implements GameObject {
 
     public GameEntity(
             float x, float y, Vector2 initialDirection,
-            Viewport viewport, OrthographicCamera camera, Stage stage,
+            Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
             Debugger debugger, Settings gs, Manager manager, Stats stats
     ) {
         // loads parameter
@@ -80,6 +81,7 @@ public abstract class GameEntity extends Actor implements GameObject {
         this.viewport = viewport;
         this.camera = camera;
         this.stage = stage;
+        this.subStage = subStage;
 
         // setup vectors
         this.center = new Vector2(x,y);

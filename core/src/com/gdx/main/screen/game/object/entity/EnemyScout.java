@@ -31,9 +31,9 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
     private boolean isPlayed = false;
 
     public EnemyScout(Player player, float x, float y, Vector2 initialDirection,
-                      Viewport viewport, OrthographicCamera camera, Stage stage,
+                      Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
                       Debugger debugger, Settings gs, Manager manager, Stats stats) {
-        super(x, y, initialDirection, viewport, camera, stage, debugger, gs, manager, stats);
+        super(x, y, initialDirection, viewport, camera, stage, subStage, debugger, gs, manager, stats);
 
         this.player = player;
         isDense = false;

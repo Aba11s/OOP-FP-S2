@@ -35,17 +35,21 @@ public class Settings {
 
     // -- PROJECTILES -- //
 
-    // BULLET-1
+    // BULLET-1 - DEFAULT
     public float bullet1Speed = 600f;
     public float bullet1Damage = 10f;
+    public float bullet1Size = 5f;
     public float bullet1Scale = 0.3f;
 
     // BULLET-2
     public float bullet2Speed = 400f;
     public float bullet2Damage = 10f;
+    public float bullet2Size = 6f;
     public float bullet2Scale = 0.3f;
 
     // BIG-BULLET-1
     public float bigBullet1Speed = 300f;
     public float bigBullet1Damage = 20f;
+
+    // MISSILE
 }

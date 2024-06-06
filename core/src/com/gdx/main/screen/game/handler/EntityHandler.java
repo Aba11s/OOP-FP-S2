@@ -33,6 +33,7 @@ public class EntityHandler {
     private Viewport viewport;
     private OrthographicCamera camera;
     private Stage stage;
+    private Stage subStage;
     private Debugger debugger;
     private Stats stats;
     private Manager manager;
@@ -47,11 +48,12 @@ public class EntityHandler {
     private float spawnDelay;
     private float spawnTimer = 0;
 
-    public EntityHandler(Viewport viewport, OrthographicCamera camera, Stage stage,
+    public EntityHandler(Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
                          Debugger debugger, Stats stats, Manager manager, Settings gs) {
         this.viewport = viewport;
         this.camera = camera;
         this.stage = stage;
+        this.subStage = subStage;
         this.debugger  = debugger;
         this.stats = stats;
         this.manager = manager;
@@ -120,7 +122,7 @@ public class EntityHandler {
 
                         // creates entity
                         new EnemyScout(player, spawnPos.x, spawnPos.y, initialDirection,
-                                viewport, camera, stage, debugger, gs, manager, stats);
+                                viewport, camera, stage, subStage, debugger, gs, manager, stats);
                     }
                     break;
                 case 1: // FIGHTER
@@ -131,7 +133,7 @@ public class EntityHandler {
 
                         // creates entity
                         new EnemyFighter(player, spawnPos.x, spawnPos.y, initialDirection,
-                                viewport, camera, stage, debugger, gs, manager, stats);
+                                viewport, camera, stage, subStage, debugger, gs, manager, stats);
                     }
 
                     break;

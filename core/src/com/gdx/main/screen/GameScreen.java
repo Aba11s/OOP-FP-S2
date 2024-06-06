@@ -26,6 +26,7 @@ import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
 
 public class GameScreen implements Screen, Buildable {
+    boolean isPaused = false;
     float delta;
 
     Core core;
@@ -45,8 +46,10 @@ public class GameScreen implements Screen, Buildable {
 
     // Stage
     GameStage backStage; // backgrounds
+    GameStage subStage; // particles
     GameStage mainStage; // objects
     GameStage hudStage; // hud, ui
+    GameStage pauseStage; // pause stage
 
     // background
     CustomBackground bg1;
@@ -55,7 +58,6 @@ public class GameScreen implements Screen, Buildable {
 
     // Objects
     Player player;
-
     GameEntity testEntity;
 
     // misc
@@ -102,29 +104,34 @@ public class GameScreen implements Screen, Buildable {
     @Override
     public void build() {
         this.backStage = new GameStage(viewport);
+        this.subStage = new GameStage(viewport);
         this.mainStage = new GameStage(viewport);
-        this.hudStage = new GameStage(viewport);
+        this.hudStage = new GameStage(viewport);;
+        // sets input processor to top level stage
         Gdx.input.setInputProcessor(hudStage);
 
         // Handlers
         projectileHandler = new ProjectileHandler(viewport);
-        entityHandler = new EntityHandler(viewport, camera, mainStage, debugger, stats, manager, gs);
+        entityHandler = new EntityHandler(viewport, camera, mainStage, subStage, debugger, stats, manager, gs);
         collisionHandler = new CollisionHandler();
 
         // Backgrounds
 
         // objects
         player = new Player(viewport.getWorldWidth()/2, -20, new Vector2(1,0),
-                viewport, camera, mainStage, debugger, gs, manager, stats);
+                viewport, camera, mainStage, subStage, debugger, gs, manager, stats);
         mainStage.addActor(player);
-        debugger.add(player);
+        Debugger.add(player);
 
         entityHandler.setPlayer(player);
         collisionHandler.setPlayer(player);
     }
 
     private void update(float delta) {
-        this.delta = delta;
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            isPaused = !isPaused;
+        }
+        this.delta = (isPaused) ? 0 : delta;
 
         mouse.update();
 
@@ -152,6 +159,7 @@ public class GameScreen implements Screen, Buildable {
 
         // draw methods
         backStage.draw();
+        subStage.draw();
         mainStage.draw();
         hudStage.draw();
     }

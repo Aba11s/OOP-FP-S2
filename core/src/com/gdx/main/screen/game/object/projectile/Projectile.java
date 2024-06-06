@@ -1,6 +1,9 @@
 package com.gdx.main.screen.game.object.projectile;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -23,6 +26,7 @@ public abstract class Projectile extends Actor implements GameObject {
 
     // -- External classes -- //
     protected Stage stage;
+    protected Stage subStage;
 
     // -- Logics -- //
     // delta time
@@ -35,6 +39,7 @@ public abstract class Projectile extends Actor implements GameObject {
     protected float velocity;
     protected float rotation;
     public Rectangle rect;
+    protected float size;
 
     // other settings
     public float damage;
@@ -45,6 +50,7 @@ public abstract class Projectile extends Actor implements GameObject {
     public boolean isAlive = true;
 
     // -- Sprite -- //
+    protected Texture texture;
     protected TextureRegion baseRegion;
     protected TextureRegion[] baseRegions;
     protected TextureRegion[] deathRegions;
@@ -53,16 +59,18 @@ public abstract class Projectile extends Actor implements GameObject {
 
     // -- Sound -- //
     protected Sound impact;
-    protected Sound death;
+    protected float impactVolume;
+    protected float impactPitch;
 
     public Projectile( boolean isFriendly,
             float x, float y, float rectSize, Vector2 initialDirection,
-            Stage stage, Settings gs, Manager manager
+            Stage stage, Stage subStage, Settings gs, Manager manager
     ) {
         this.isFriendly = isFriendly;
         this.gs = gs;
         this.manager = manager;
         this.stage = stage;
+        this.subStage = subStage;
 
         // setup vectors
         this.center = new Vector2(x,y);
@@ -78,6 +86,27 @@ public abstract class Projectile extends Actor implements GameObject {
         this.stage.addActor(this);
         ProjectileHandler.add(this);
         Debugger.add(this);
+    }
+
+    public void setSettings(float speed, float damage, float size) {
+        this.velocity = speed;
+        this.damage = damage;
+        this.size = size;
+        this.rect.setSize(size);
+    }
+
+    public void setSFX(Sound SFX, float volume, float pitch) {
+        this.impact = SFX;
+        this.impactVolume = volume;
+        this.impactPitch = pitch;
+    }
+
+    public void setTexture(Texture texture, float scale) {
+        this.texture = texture;
+        this.baseRegions[0] = new TextureRegion(texture);
+        this.baseSprite.setRegion(baseRegions[0]);
+        this.scale = scale;
+        this.baseSprite.setScale(scale);
     }
 
     protected abstract void loadSprites();

@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
-import com.gdx.main.screen.game.object.cannon.PlayerCannon;
+import com.gdx.main.screen.game.object.cannon.BasicCannon;
 import com.gdx.main.screen.game.object.cannon.Cannon;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
@@ -39,9 +39,9 @@ public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
 
 
     public Player(float x, float y, Vector2 initialDirection,
-                  Viewport viewport, OrthographicCamera camera, Stage stage,
+                  Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
                   Debugger debugger, Settings gs, Manager manager, Stats stats) {
-        super(x, y, initialDirection, viewport, camera, stage, debugger, gs, manager, stats);
+        super(x, y, initialDirection, viewport, camera, stage, subStage, debugger, gs, manager, stats);
 
         // import from game settings
         acceleration = 400f;
@@ -60,8 +60,8 @@ public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
         isPlayer = true;
 
         // setups cannon
-        cannon1 = new PlayerCannon(true, center, new Vector2(6, 8), stage, gs, manager);
-        cannon2 = new PlayerCannon(true, center, new Vector2(-6, 8), stage, gs, manager);
+        cannon1 = new BasicCannon(true, center, new Vector2(6, 8), stage, subStage, gs, manager);
+        cannon2 = new BasicCannon(true, center, new Vector2(-6, 8), stage, subStage, gs, manager);
     }
 
     public Vector2 getCenter() {

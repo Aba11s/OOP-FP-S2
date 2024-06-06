@@ -14,7 +14,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
-import com.gdx.main.screen.game.object.cannon.FighterCannon;
+import com.gdx.main.screen.game.object.cannon.BasicCannon;
+import com.gdx.main.screen.game.object.cannon.Cannon;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
@@ -29,15 +30,15 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
     private float speed;
 
     // Cannon
-    private FighterCannon cannon;
+    private Cannon cannon;
 
     // SFX
     private boolean isPlayed = false;
 
     public EnemyFighter(Player player, float x, float y, Vector2 initialDirection,
-                      Viewport viewport, OrthographicCamera camera, Stage stage,
+                      Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
                       Debugger debugger, Settings gs, Manager manager, Stats stats) {
-        super(x, y, initialDirection, viewport, camera, stage, debugger, gs, manager, stats);
+        super(x, y, initialDirection, viewport, camera, stage, subStage, debugger, gs, manager, stats);
 
         this.player = player;
         isDense = true;
@@ -56,9 +57,16 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
         direction.set(target).nor();
 
         // Cannon setup
-        cannon = new FighterCannon(false, center, new Vector2(0,5), stage, gs, manager);
+        cannon = new BasicCannon(false, center, new Vector2(0,5), stage, subStage, gs, manager);
+        // Cannon settings
+        cannon.setSettings(gs.fighterFireRate);
+        cannon.setSFX("audio/sfx/laser-1.wav", 0.1f, 0.5f);
+        // Cannon bullet settings
+        cannon.setBulletSettings(gs.bullet2Speed, gs.bullet2Damage, gs.bullet2Size);
+        cannon.setBulletSFX("audio/sfx/impact-1.mp3", 0.1f, 0.5f);
+        cannon.setBulletTexture("02.png", 1f);
 
-        // audio
+        // Audio
         deathSFX = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/explosion-1.mp3"));
     }
 
@@ -155,7 +163,6 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
 
         // scales speed based on distance
         double distance = Math.sqrt(Math.pow(player.getCenter().x - center.x, 2) + Math.pow(player.getCenter().y - center.y, 2));
-        System.out.println(distance);
         if(distance < 300f) {
             speed = (float) (speed * ((distance+300)/600));
         }

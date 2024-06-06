@@ -16,16 +16,16 @@ import com.gdx.main.screen.game.object.entity.GameEntity;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 
-public class BasicBullet2 extends Projectile{
+public class BasicBullet extends Projectile{
 
-    public BasicBullet2(boolean isFriendly, float x, float y, float rectSize, Vector2 initialDirection,
-                        Stage stage, Settings gs, Manager manager) {
-        super(isFriendly, x, y, rectSize, initialDirection, stage, gs, manager);
+    public BasicBullet(boolean isFriendly, float x, float y, float rectSize, Vector2 initialDirection,
+                       Stage stage, Stage subStage, Settings gs, Manager manager) {
+        super(isFriendly, x, y, rectSize, initialDirection, stage, subStage, gs, manager);
 
         // default settings
-        velocity = gs.bullet2Speed;
-        damage = gs.bullet2Damage;
-        scale = gs.bullet2Scale;
+        velocity = gs.bullet1Speed;
+        damage = gs.bullet1Damage;
+        scale = gs.bullet1Scale;
 
         // load assets
         loadSprites();
