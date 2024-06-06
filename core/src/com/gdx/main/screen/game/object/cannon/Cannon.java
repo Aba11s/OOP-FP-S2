@@ -18,8 +18,6 @@ public abstract class Cannon {
     protected Vector2 direction;
     protected Vector2 spawnPos;
     protected float offsetAngle;
-    protected float rotation;
-
 
     // settings
     protected float fireRate;

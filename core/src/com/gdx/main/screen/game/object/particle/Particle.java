@@ -1,55 +1,82 @@
 package com.gdx.main.screen.game.object.particle;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.gdx.main.helper.debug.Debugger;
+import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.ParticleHandler;
+import com.gdx.main.screen.game.object.GameObject;
+import org.w3c.dom.Text;
 
-public abstract class Particle extends Actor {
+public abstract class Particle extends Actor implements GameObject {
 
-    Animation<TextureRegion> animation;
-    Rectangle rect;
-    Vector2 center;
-    float speed; // animation speed
-    float stateTime;
-    public Particle(String path, int sheetRows, int sheetCols,
-            float x, float y, float speed) {
-        // loads texture
-        Texture texture = new Texture(path);
+    TextureRegion[] regions;
+    Sprite sprite;
+
+    Vector2 center; // position vector
+    float scale; // scales size of image
+    float alpha; // controls opacity
+    boolean loop; // loops particle animation or not
+    boolean done; // checks if particle is done animating
+
+    int frameIndex = 0;
+    float frameIncrement = 0;
+    float speed;
+
+    public Particle(String path, int cols, int rows, Vector2 center,
+                    float scale, float alpha, float speed, boolean loop,
+                    Stage stage) {
+        this.center = new Vector2(center);
+        this.scale = scale;
+        this.alpha = alpha;
+        this.speed = speed;
+        this.loop = loop;
+
+        Texture texture = new Texture(Gdx.files.internal(path));
+        int tWidth = texture.getWidth(); int tHeight = texture.getHeight();
+
+        // splits spritesheet into a 2d array
         TextureRegion[][] tmp = TextureRegion.split(texture,
-                texture.getWidth()/sheetRows,
-                texture.getHeight()/sheetCols);
+                tWidth / cols,
+                tHeight / rows);
 
-        // converts 2d into 1d
-        TextureRegion[] regionFrames = new TextureRegion[sheetRows * sheetCols];
-        int index = 0;
-        for(int i = 0; i < sheetRows; i++) {
-            for(int j = 0; j < sheetCols; j++) {
-                regionFrames[index++] = tmp[i][j];
+        // converts 2d into 1d array
+        regions = new TextureRegion[cols*rows];
+        int idx = 0;
+        for(int i = 0; i < rows; i++) {
+            for(int j = 0; j < cols; j++) {
+                regions[idx++] = tmp[i][j];
             }
         }
 
-        // animation
-        animation = new Animation<>(1/speed, regionFrames);
-        stateTime = 0f;
+        // creates sprite
+        sprite = new Sprite(regions[0]);
+        sprite.setCenter(center.x, center.y);
+        sprite.setScale(scale);
+        sprite.setAlpha(alpha);
 
-        this.center = new Vector2(x,y);
-        rect = new Rectangle();
-        rect.setSize(regionFrames[0].getRegionWidth(), regionFrames[0].getRegionHeight());
-        rect.setCenter(center);
-
+        // adds this to handlers and stage
+        stage.addActor(this);
         ParticleHandler.add(this);
+        Debugger.add(this);
     }
-    public abstract void update(float delta);
+
+    public abstract void animate(); // iterates over array
+
+    public abstract void kill(); // deletes all references to particle
 
     @Override
-    public void draw(Batch batch, float parentAlpha) {
-        TextureRegion currentFrame = animation.getKeyFrame(stateTime);
-        batch.draw(currentFrame, rect.x, rect.y);
-    }
+    public abstract void update(float delta, Mouse mouse);
+
+    @Override
+    public abstract void draw(Batch batch, float parentAlpha);
+
+    @Override
+    public abstract void debug(ShapeRenderer shape);
 }

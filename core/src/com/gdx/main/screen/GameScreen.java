@@ -12,6 +12,7 @@ import com.gdx.main.Core;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.helper.ui.custom_items.CustomBackground;
+import com.gdx.main.screen.game.handler.CollisionHandler;
 import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.handler.ProjectileHandler;
 import com.gdx.main.screen.game.object.entity.EnemyScout;
@@ -25,6 +26,7 @@ import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
 
 public class GameScreen implements Screen, Buildable {
+    float delta;
 
     Core core;
     Manager manager;
@@ -39,6 +41,7 @@ public class GameScreen implements Screen, Buildable {
     // Handlers
     EntityHandler entityHandler;
     ProjectileHandler projectileHandler;
+    CollisionHandler collisionHandler;
 
     // Stage
     GameStage backStage; // backgrounds
@@ -105,43 +108,40 @@ public class GameScreen implements Screen, Buildable {
 
         // Handlers
         projectileHandler = new ProjectileHandler(viewport);
-        entityHandler = new EntityHandler();
+        entityHandler = new EntityHandler(viewport, camera, mainStage, debugger, stats, manager, gs);
+        collisionHandler = new CollisionHandler();
 
         // Backgrounds
 
         // objects
-        player = new Player(viewport.getWorldWidth()/2, -20, 10,
-                new Vector2(1,0), viewport, camera, mainStage, debugger, gs, manager, stats);
+        player = new Player(viewport.getWorldWidth()/2, -20, new Vector2(1,0),
+                viewport, camera, mainStage, debugger, gs, manager, stats);
         mainStage.addActor(player);
         debugger.add(player);
+
         entityHandler.setPlayer(player);
-
-        testEntity = new EnemyScout(player, 100, 100, 10,
-                new Vector2(1,0), viewport, camera, mainStage, debugger, gs, manager, stats);
-        // HUD & UI
-    }
-
-    @Override
-    public void show() {
-
+        collisionHandler.setPlayer(player);
     }
 
     private void update(float delta) {
+        this.delta = delta;
+
         mouse.update();
 
         // handlers
-        projectileHandler.update(delta);
-        entityHandler.update(delta, mouse);
+        projectileHandler.update(this.delta);
+        entityHandler.update(this.delta, mouse);
+        collisionHandler.update(this.delta);
 
         // backgrounds
-        bg1.update(delta);
-        bg2.update(delta);
-        bg3.update(delta);
+        bg1.update(this.delta);
+        bg2.update(this.delta);
+        bg3.update(this.delta);
 
         // hud & ui
 
         // misc
-        if(!flag1) {beginGame(delta);}
+        if(!flag1) {beginGame(this.delta);}
     }
 
     @Override
@@ -170,6 +170,11 @@ public class GameScreen implements Screen, Buildable {
     @Override
     public void resume() {
         // for android / ios only
+    }
+
+    @Override
+    public void show() {
+
     }
 
     @Override

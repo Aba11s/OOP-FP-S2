@@ -11,17 +11,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
-import com.gdx.main.screen.game.object.cannon.BasicCannon;
+import com.gdx.main.screen.game.handler.EntityHandler;
+import com.gdx.main.screen.game.object.cannon.PlayerCannon;
 import com.gdx.main.screen.game.object.cannon.Cannon;
+import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
 
-public class Player extends GameEntity{
+public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
 
     // settings variables
     private final float acceleration;
@@ -32,18 +33,15 @@ public class Player extends GameEntity{
     public float hp, dmg;
     private float alpha = 1;
 
-    // states
-    private boolean inTransition;
-
     // Cannon
-    private Cannon cannon1;
-    private Cannon cannon2;
+    private final Cannon cannon1;
+    private final Cannon cannon2;
 
 
-    public Player(float x, float y, float rectSize, Vector2 initialDirection,
+    public Player(float x, float y, Vector2 initialDirection,
                   Viewport viewport, OrthographicCamera camera, Stage stage,
                   Debugger debugger, Settings gs, Manager manager, Stats stats) {
-        super(x, y, rectSize, initialDirection, viewport, camera, stage, debugger, gs, manager, stats);
+        super(x, y, initialDirection, viewport, camera, stage, debugger, gs, manager, stats);
 
         // import from game settings
         acceleration = 400f;
@@ -56,12 +54,14 @@ public class Player extends GameEntity{
         // initial velocity and direction during screen transition
         velocity.set(0f, maxSpeed);
         direction.set(0,1);
+        rect.setSize(10);
 
-        inTransition = true;
+        // hell yeah
+        isPlayer = true;
 
         // setups cannon
-        cannon1 = new BasicCannon(true, center, new Vector2(6, 8), stage, gs, manager);
-        cannon2 = new BasicCannon(true, center, new Vector2(-6, 8), stage, gs, manager);
+        cannon1 = new PlayerCannon(true, center, new Vector2(6, 8), stage, gs, manager);
+        cannon2 = new PlayerCannon(true, center, new Vector2(-6, 8), stage, gs, manager);
     }
 
     public Vector2 getCenter() {
@@ -96,20 +96,36 @@ public class Player extends GameEntity{
     // Teleport player to opposite side of world if
     // it goes off-screen
     private void wrapWorld() {
-        if(!inTransition) {
-            if (center.x < -20) {
-                center.x = viewport.getWorldWidth() + 10;
-            }
-            if (center.x > viewport.getWorldWidth() + 20) {
-                center.x = -10;
-            }
-            if (center.y < -20) {
-                center.y = viewport.getWorldHeight() + 10;
-            }
-            if (center.y > viewport.getWorldHeight() + 20) {
-                center.y = -10;
-            }
+        if (center.x < -20) {
+            center.x = viewport.getWorldWidth() + 10;
         }
+        if (center.x > viewport.getWorldWidth() + 20) {
+            center.x = -10;
+        }
+        if (center.y < -20) {
+            center.y = viewport.getWorldHeight() + 10;
+        }
+        if (center.y > viewport.getWorldHeight() + 20) {
+            center.y = -10;
+        }
+    }
+    // collisions
+    @Override
+    public void collide(GameEntity entity) {
+        if(entity.isActive && !isInvincible) {
+            hp -= entity.dmg;
+        }
+    }
+
+    @Override
+    public void collide(Projectile projectile) {
+
+    }
+
+    @Override
+    public void kill() {
+        this.remove();
+        EntityHandler.remove(this);
     }
 
     // Updates player movement
@@ -118,6 +134,7 @@ public class Player extends GameEntity{
         if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)
         || Gdx.input.isKeyPressed(Input.Keys.W)) {
             // If button pressed is pressed, accelerate along the direction vector
+            direction.nor();
             velocity.add(direction.x * acceleration * delta, direction.y * acceleration * delta);
             velocity.clamp(0, maxSpeed);
         }
@@ -172,21 +189,19 @@ public class Player extends GameEntity{
 
     @Override
     public void update(float delta, Mouse mouse) {
-        super.update(delta, mouse);
+        this.delta = delta;
 
         // if player is still alive
         if(isAlive) {
+            // update cannons
             cannon1.update(this.delta, center, direction);
             cannon2.update(this.delta, center, direction);
             checkFire();
+
+            // updates movement
             rotate(mouse);
-            //realisticMove();
             move();
             wrapWorld();
-        }
-
-        if(inTransition) {
-            if(center.y > 0) {inTransition = false;}
         }
     }
 

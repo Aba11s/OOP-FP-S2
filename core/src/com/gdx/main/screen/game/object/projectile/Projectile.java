@@ -1,21 +1,24 @@
 package com.gdx.main.screen.game.object.projectile;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.ProjectileHandler;
 import com.gdx.main.screen.game.object.GameObject;
+import com.gdx.main.screen.game.object.entity.GameEntity;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 
 public abstract class Projectile extends Actor implements GameObject {
 
     // -- Util -- //
-    protected Settings sets;
+    protected Settings gs;
     protected Manager manager;
 
     // -- External classes -- //
@@ -30,16 +33,16 @@ public abstract class Projectile extends Actor implements GameObject {
     protected Vector2 direction;
     protected Vector2 target;
     protected float velocity;
-    protected Rectangle rect;
     protected float rotation;
+    public Rectangle rect;
 
     // other settings
-    protected float damage;
+    public float damage;
     protected float scale;
 
     // booleans
-    protected boolean isFriendly;
-    public boolean toRemove;
+    public boolean isFriendly;
+    public boolean isAlive = true;
 
     // -- Sprite -- //
     protected TextureRegion baseRegion;
@@ -48,12 +51,16 @@ public abstract class Projectile extends Actor implements GameObject {
     protected Sprite baseSprite;
     protected Sprite deathSprite;
 
+    // -- Sound -- //
+    protected Sound impact;
+    protected Sound death;
+
     public Projectile( boolean isFriendly,
             float x, float y, float rectSize, Vector2 initialDirection,
-            Stage stage, Settings sets, Manager manager
+            Stage stage, Settings gs, Manager manager
     ) {
         this.isFriendly = isFriendly;
-        this.sets = sets;
+        this.gs = gs;
         this.manager = manager;
         this.stage = stage;
 
@@ -66,16 +73,20 @@ public abstract class Projectile extends Actor implements GameObject {
         this.rect = new Rectangle();
         this.rect.setSize(rectSize);
         this.rect.setCenter(center);
+
+        // adds to groups
+        this.stage.addActor(this);
+        ProjectileHandler.add(this);
+        Debugger.add(this);
     }
 
     protected abstract void loadSprites();
 
-    @Override
-    public void update(float delta, Mouse mouse) {
-        this.delta = delta;
-        if(toRemove) {
-            this.remove();  // removes actor
-            ProjectileHandler.remove(this);
-        }
-    }
+    protected abstract void loadAudio();
+
+    public abstract void collide(GameEntity entity);
+
+    public abstract void kill();
+
+    public abstract void update(float delta, Mouse mouse);
 }

@@ -14,12 +14,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
+import com.gdx.main.screen.game.object.cannon.FighterCannon;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
 
-public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntity {
+public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEntity {
 
     private final Player player;
 
@@ -27,29 +28,35 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
     private final float maxSpeed;
     private float speed;
 
+    // Cannon
+    private FighterCannon cannon;
+
     // SFX
     private boolean isPlayed = false;
 
-    public EnemyScout(Player player, float x, float y, Vector2 initialDirection,
+    public EnemyFighter(Player player, float x, float y, Vector2 initialDirection,
                       Viewport viewport, OrthographicCamera camera, Stage stage,
                       Debugger debugger, Settings gs, Manager manager, Stats stats) {
         super(x, y, initialDirection, viewport, camera, stage, debugger, gs, manager, stats);
 
         this.player = player;
-        isDense = false;
+        isDense = true;
 
         // default settings
-        rotationSpeed = 60f;
-        maxSpeed = 120f;
+        rotationSpeed = gs.fighterRotation;
+        maxSpeed = gs.fighterSpeed;
         speed = maxSpeed;
 
-        hp = 1;
-        dmg = 100;
-        rect.setSize(20);
+        hp = gs.fighterHP;
+        dmg = gs.fighterDMG;
+        rect.setSize(gs.fighterSize);
 
         // sets initial direction;
         target.set(player.getCenter().x - center.x, player.getCenter().y - center.y);
         direction.set(target).nor();
+
+        // Cannon setup
+        cannon = new FighterCannon(false, center, new Vector2(0,5), stage, gs, manager);
 
         // audio
         deathSFX = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/explosion-1.mp3"));
@@ -58,9 +65,9 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
     @Override
     protected void loadSprites() {
         // manually load assets
-        Texture texture = new Texture(Gdx.files.internal("textures/object/entity/enemy/scout-1.png"));
+        Texture texture = new Texture(Gdx.files.internal("textures/object/entity/enemy/fighter-2.png"));
         int tWidth = texture.getWidth(); int tHeight = texture.getHeight();
-        int tiles = 10;
+        int tiles = 9;
 
         // splits texture
         TextureRegion[][] temp = TextureRegion.split(texture, tWidth/tiles, tHeight);
@@ -99,7 +106,7 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
     private void playSound() {
         if(!isPlayed) {
             long id = deathSFX.play();
-            deathSFX.setVolume(id, 0.10f);
+            deathSFX.setVolume(id, 0.1f);
             deathSFX.setPitch(id, 2f);
             isPlayed = true;
         }
@@ -107,7 +114,7 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
 
     private void animateDeath() {
         baseSprite.setRegion(baseRegions[frameIndex]);
-        if(frameIndex < 9) {
+        if(frameIndex < 8) {
             frameIncrement += 1f;
             frameIndex = (int)frameIncrement;
         } else {
@@ -146,8 +153,15 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
         speed = maxSpeed;
         speed = speed * (1 - (minDelta)/180 * 1/1.5f);
 
+        // scales speed based on distance
+        double distance = Math.sqrt(Math.pow(player.getCenter().x - center.x, 2) + Math.pow(player.getCenter().y - center.y, 2));
+        System.out.println(distance);
+        if(distance < 300f) {
+            speed = (float) (speed * ((distance+300)/600));
+        }
+
         // scales rotation according to delta
-        float scaledRotationSpeed = rotationSpeed * ((minDelta*2.5f)/180);
+        float scaledRotationSpeed = rotationSpeed * ((minDelta+180)/180);
 
         // decides wether to turn clockwise or anti-clockwise
         currentAngle = (deltaAngle > 180) ?
@@ -163,11 +177,16 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
     @Override
     public void update(float delta, Mouse mouse) {
         this.delta = delta;
-
         if(isAlive) {
             setActive();
+
+            // rotation & movement
             rotate();
             move();
+
+            // cannon and states
+            cannon.update(delta, center, direction);
+            if(isActive) {cannon.fire();}
             if(hp <= 0) {isAlive = false; isActive = false;}
 
         } else {
