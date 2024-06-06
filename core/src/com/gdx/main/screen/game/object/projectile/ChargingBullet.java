@@ -38,7 +38,7 @@ public class ChargingBullet extends Projectile{
     @Override
     protected void loadSprites() {
         baseRegions = new TextureRegion[] {
-                new TextureRegion(new Texture("01.png"))
+                new TextureRegion(new Texture("02.png"))
         };
         baseRegion = baseRegions[0];
         baseSprite = new Sprite(baseRegion);
@@ -56,13 +56,6 @@ public class ChargingBullet extends Projectile{
     @Override
     public void collide(GameEntity entity) {
         if(entity.isDense) {isAlive = false;}
-    }
-
-    private void death() {
-        long id = impact.play();
-        impact.setVolume(id, 0.1f);
-        impact.setPitch(id, 3f);
-        kill();
     }
 
     public void kill() {
@@ -83,8 +76,9 @@ public class ChargingBullet extends Projectile{
         //
     }
 
-    public void chargeUpdate(Vector2 position, float scale) {
+    public void chargeUpdate(Vector2 position, float scale, float rotation) {
         baseSprite.setScale(scale);
+        baseSprite.setRotation(rotation);
         move(position);
     }
 

@@ -8,10 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
-import com.gdx.main.screen.game.object.entity.EnemyFighter;
-import com.gdx.main.screen.game.object.entity.EnemyScout;
-import com.gdx.main.screen.game.object.entity.GameEntity;
-import com.gdx.main.screen.game.object.entity.Player;
+import com.gdx.main.screen.game.object.entity.*;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
@@ -64,7 +61,7 @@ public class EntityHandler {
         position.set(viewport.getWorldWidth()/2, viewport.getWorldHeight()/2);
 
         initialSpawnDelay = gs.initialSpawnDelay;
-        spawnDelay = 9999999999f;
+        spawnDelay = 0f;
         maxSpace = 100;
         currentSpace = 100;
 
@@ -72,6 +69,7 @@ public class EntityHandler {
         // key = type of enemy, value = weight
         weightMap.put(0, gs.scoutWeight);
         weightMap.put(1, gs.fighterWeight);
+        weightMap.put(2, gs.chargerWeight);
     }
 
     // adds player
@@ -137,7 +135,16 @@ public class EntityHandler {
                     }
 
                     break;
-                case 2: // BOMBER
+                case 2: // CHARGER
+                    for(int i = 0; i < gs.chargerSpawnNumber; i++) {
+                        // sets spawn position and direction
+                        spawnPos.set(getSpawnPosition());
+                        initialDirection.set(player.getCenter().x - spawnPos.x, player.getCenter().y - spawnPos.y);
+
+                        // creates entity
+                        new EnemyCharger(player, spawnPos.x, spawnPos.y, initialDirection,
+                                viewport, camera, stage, subStage, debugger, gs, manager, stats);
+                    }
 
                     break;
                 case 3: // FRIGATE

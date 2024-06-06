@@ -3,7 +3,7 @@ package com.gdx.main.util;
 public class Settings {
 
     // -- Game settings -- //
-    public float initialSpawnDelay = 50000000f;
+    public float initialSpawnDelay = 9999999999999f;
 
     /*
     OBJECTS
@@ -12,26 +12,46 @@ public class Settings {
     // -- ENTITIES -- //
 
     // PLAYER
-    public int playerSpawnSize = 1;
+    public int playerSpawnSize = 0;
 
-    public float playerFireRate = 2f;
+    public float playerFireRate = 400f;
 
     // SCOUT
     public int scoutWeight = 120;
-    public int scoutSpawnNumber = 5;
+    public int scoutSpawnNumber = 5000;
     public int scoutSpawnSize = 1;
 
+    public float scoutSpeed = 1200000f;
+    public float scoutRotation = 100f;
+    public float scoutHP = 10f;
+    public float scoutDMG = 10f;
+    public float scoutSize = 15f;
+
     // FIGHTER
-    public int fighterWeight = 4000;
-    public int fighterSpawnNumber = 3;
-    public int fighterSpawnSize = 5 * 3;
+    public int fighterWeight = 40;
+    public int fighterSpawnNumber = 2;
+    public int fighterSpawnSize = 5;
 
     public float fighterFireRate = .5f;
     public float fighterSpeed = 80f;
     public float fighterRotation = 50f;
     public float fighterHP = 50f;
-    public float fighterDMG = 100f;
+    public float fighterDMG = 10f;
     public float fighterSize = 20f;
+
+    // CHARGER
+    public int chargerWeight = 20;
+    public int chargerSpawnNumber = 1;
+    public int chargerSpawnSize = 10;
+
+    public float chargerChargeTime = 3.5f;
+    public float chargerReloadTime = 6.6f;
+    public float chargerSpeed = 50f;
+    public float chargerRotation = 120f;
+    public float chargerHP = 120f;
+    public float chargerDMG = 10f;
+    public float chargerSize = 20f;
+
 
     // -- PROJECTILES -- //
 
@@ -53,7 +73,13 @@ public class Settings {
 
     // BIG-BULLET-1
     public float bigBullet1Speed = 300f;
-    public float bigBullet1Damage = 20f;
+    public float bigBullet1Damage = 25f;
 
     // MISSILE
+
+    // -- PARTICLES -- //
+
+    // TRAIL
+    public float trailScale = 0.25f;
+    public float trailFadeSpeed = 1f;
 }

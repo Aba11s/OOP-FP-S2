@@ -17,12 +17,13 @@ import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.object.cannon.BasicCannon;
 import com.gdx.main.screen.game.object.cannon.Cannon;
+import com.gdx.main.screen.game.object.particle.TrailParticle;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
 
-public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
+public class Player extends GameEntity {
 
     // settings variables
     private final float acceleration;
@@ -30,12 +31,17 @@ public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
     private final float maxSpeed;
     private final float speedDecay;
 
-    public float hp, dmg;
     private float alpha = 1;
 
     // Cannon
     private final Cannon cannon1;
     private final Cannon cannon2;
+
+    // Particle
+    private final Vector2 particleOffset1;
+    private final Vector2 particleOffset2;
+    private final float particleOffsetAngle1;
+    private final float particleOffsetAngle2;
 
 
     public Player(float x, float y, Vector2 initialDirection,
@@ -62,6 +68,12 @@ public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
         // setups cannon
         cannon1 = new BasicCannon(true, center, new Vector2(6, 8), stage, subStage, gs, manager);
         cannon2 = new BasicCannon(true, center, new Vector2(-6, 8), stage, subStage, gs, manager);
+
+        // setups particle
+        particleOffset1 = new Vector2(10,-5);
+        particleOffset2 = new Vector2(-10, -5);
+        particleOffsetAngle1 = particleOffset1.angleDeg();
+        particleOffsetAngle2 = particleOffset2.angleDeg();
     }
 
     public Vector2 getCenter() {
@@ -119,13 +131,18 @@ public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
 
     @Override
     public void collide(Projectile projectile) {
-
+        if(!isInvincible) {
+            hp -= projectile.damage;
+        }
     }
 
     @Override
     public void kill() {
         this.remove();
         EntityHandler.remove(this);
+        Debugger.remove(this);
+        cannon1.kill();
+        cannon2.kill();
     }
 
     // Updates player movement
@@ -134,7 +151,6 @@ public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
         if(Gdx.input.isButtonPressed(Input.Buttons.RIGHT)
         || Gdx.input.isKeyPressed(Input.Keys.W)) {
             // If button pressed is pressed, accelerate along the direction vector
-            direction.nor();
             velocity.add(direction.x * acceleration * delta, direction.y * acceleration * delta);
             velocity.clamp(0, maxSpeed);
         }
@@ -187,6 +203,18 @@ public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
         baseSprite.setRotation(rotation);
     }
 
+    public void spawnParticle() {
+        Vector2 particleCenter = new Vector2(center);
+        Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
+        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage);
+
+        particleCenter.set(center);
+        particleSpawnPos.set(particleCenter.add(particleOffset2.setAngleDeg(direction.angleDeg() + particleOffsetAngle2 - 90)));
+        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage);
+    }
+
     @Override
     public void update(float delta, Mouse mouse) {
         this.delta = delta;
@@ -202,6 +230,9 @@ public class Player extends com.gdx.main.screen.game.object.entity.GameEntity {
             rotate(mouse);
             move();
             wrapWorld();
+
+            // particle
+            spawnParticle();
         }
     }
 

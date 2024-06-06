@@ -58,9 +58,7 @@ public abstract class GameEntity extends Actor implements GameObject {
     // -- Sprite -- //
     protected TextureRegion baseRegion;
     protected TextureRegion[] baseRegions;
-    protected TextureRegion[] particleRegions;
     protected Sprite baseSprite;
-    protected Sprite particleSprite;
 
     protected int frameIndex = 0;
     protected float frameIncrement = 0;

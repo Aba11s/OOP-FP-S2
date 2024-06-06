@@ -1,5 +1,6 @@
 package com.gdx.main.screen.game.object.particle;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -9,10 +10,10 @@ import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.ParticleHandler;
 
 public class ImpactParticle extends Particle {
-    public ImpactParticle(String path, int cols, int rows, Vector2 center,
+    public ImpactParticle(Texture texture, int cols, int rows, Vector2 center,
                           float scale, float alpha, float speed, boolean loop,
                           Stage stage) {
-        super(path, cols, rows, center, scale, alpha, speed, loop, stage);
+        super(texture, cols, rows, center, scale, alpha, speed, loop, stage);
     }
 
     @Override

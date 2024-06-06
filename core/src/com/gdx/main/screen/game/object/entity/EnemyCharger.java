@@ -17,6 +17,7 @@ import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.object.cannon.BasicCannon;
 import com.gdx.main.screen.game.object.cannon.Cannon;
 import com.gdx.main.screen.game.object.cannon.ChargeCannon;
+import com.gdx.main.screen.game.object.particle.TrailParticle;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
@@ -27,14 +28,21 @@ public class EnemyCharger extends com.gdx.main.screen.game.object.entity.GameEnt
     private final Player player;
 
     private final float rotationSpeed;
-    private final float maxSpeed;
+    private float maxSpeed;
     private float speed;
 
     // Cannon
-    private ChargeCannon cannon;
+    private final ChargeCannon cannon;
 
     // SFX
     private boolean isPlayed = false;
+
+    // Particle
+    private final Vector2 particleOffset1;
+    private final Vector2 particleOffset2;
+    private final float particleOffsetAngle1;
+    private final float particleOffsetAngle2;
+
 
     public EnemyCharger(Player player, float x, float y, Vector2 initialDirection,
                         Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
@@ -45,13 +53,13 @@ public class EnemyCharger extends com.gdx.main.screen.game.object.entity.GameEnt
         isDense = true;
 
         // default settings
-        rotationSpeed = gs.fighterRotation;
-        maxSpeed = gs.fighterSpeed;
+        rotationSpeed = gs.chargerRotation;
+        maxSpeed = gs.chargerSpeed;
         speed = maxSpeed;
 
-        hp = gs.fighterHP;
-        dmg = gs.fighterDMG;
-        rect.setSize(gs.fighterSize);
+        hp = gs.chargerHP;
+        dmg = gs.chargerDMG;
+        rect.setSize(gs.chargerSize);
 
         // sets initial direction;
         target.set(player.getCenter().x - center.x, player.getCenter().y - center.y);
@@ -60,22 +68,30 @@ public class EnemyCharger extends com.gdx.main.screen.game.object.entity.GameEnt
         // Cannon setup
         cannon = new ChargeCannon(false, center, new Vector2(0,20), stage, subStage, gs, manager);
         // Cannon settings
-        cannon.setSFX("audio/sfx/laser-1.wav", 0.1f, 0.5f);
-        // Cannon bullet settings
+        cannon.setSFX("audio/sfx/laser-1.wav", 0.1f, 0.35f);
+        // Cannon charging bullet settings
+
+        // Cannon main bullet settings
         cannon.setBulletSettings(gs.bullet2Speed, gs.bullet2Damage, gs.bullet2Size);
         cannon.setBulletSFX("audio/sfx/impact-1.mp3", 0.1f, 0.5f);
-        cannon.setBulletTexture("02.png", 1f);
+        cannon.setBulletTexture("02.png", 0.9f);
 
         // Audio
         deathSFX = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/explosion-1.mp3"));
+
+        // Particle
+        particleOffset1 = new Vector2(5,-2);
+        particleOffset2 = new Vector2(-5,-2);
+        particleOffsetAngle1 = particleOffset1.angleDeg();
+        particleOffsetAngle2 = particleOffset2.angleDeg();
     }
 
     @Override
     protected void loadSprites() {
         // manually load assets
-        Texture texture = new Texture(Gdx.files.internal("textures/object/entity/enemy/fighter-2.png"));
+        Texture texture = new Texture(Gdx.files.internal("textures/object/entity/enemy/bomber-2.png"));
         int tWidth = texture.getWidth(); int tHeight = texture.getHeight();
-        int tiles = 9;
+        int tiles = 10;
 
         // splits texture
         TextureRegion[][] temp = TextureRegion.split(texture, tWidth/tiles, tHeight);
@@ -123,7 +139,7 @@ public class EnemyCharger extends com.gdx.main.screen.game.object.entity.GameEnt
     private void animateDeath() {
         baseSprite.setRegion(baseRegions[frameIndex]);
         if(frameIndex < 8) {
-            frameIncrement += 1f;
+            frameIncrement += 0.5f;
             frameIndex = (int)frameIncrement;
         } else {
             kill();
@@ -135,9 +151,12 @@ public class EnemyCharger extends com.gdx.main.screen.game.object.entity.GameEnt
         this.remove(); // remove actor
         EntityHandler.remove(this); // remove final reference
         Debugger.remove(this); // removes from debugger
+        deathSFX.dispose();
+        cannon.kill();
     }
 
     private void move() {
+
         // updates center position
         center.add(direction.x * speed * delta, direction.y * speed * delta);
         rect.setCenter(center);
@@ -157,18 +176,16 @@ public class EnemyCharger extends com.gdx.main.screen.game.object.entity.GameEnt
         float deltaAngle2 = (((targetAngle - currentAngle) % 360) + 360) % 360;
         float minDelta = Math.min(deltaAngle, deltaAngle2);
 
-        // scales speed according to delta
         speed = maxSpeed;
-        speed = speed * (1 - (minDelta)/180 * 1/1.5f);
 
         // scales speed based on distance
         double distance = Math.sqrt(Math.pow(player.getCenter().x - center.x, 2) + Math.pow(player.getCenter().y - center.y, 2));
-        if(distance < 300f) {
-            speed = (float) (speed * ((distance+300)/600));
+        if(distance < 600f) {
+            speed = (float) (speed * ((distance)/600));
         }
 
         // scales rotation according to delta
-        float scaledRotationSpeed = rotationSpeed * ((minDelta+180)/180);
+        float scaledRotationSpeed = rotationSpeed;// * ((minDelta+180)/180);
 
         // decides wether to turn clockwise or anti-clockwise
         currentAngle = (deltaAngle > 180) ?
@@ -181,19 +198,37 @@ public class EnemyCharger extends com.gdx.main.screen.game.object.entity.GameEnt
         baseSprite.setRotation(rotation);
     }
 
+    public void spawnParticle() {
+        Vector2 particleCenter = new Vector2(center);
+        Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
+        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed/3, false, subStage);
+
+        particleCenter.set(center);
+        particleSpawnPos.set(particleCenter.add(particleOffset2.setAngleDeg(direction.angleDeg() + particleOffsetAngle2 - 90)));
+        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed/3, false, subStage);
+    }
+
     @Override
     public void update(float delta, Mouse mouse) {
         this.delta = delta;
         if(isAlive) {
             setActive();
 
+            // sets speed based on charge
+            maxSpeed = (cannon.state == ChargeCannon.State.CHARGING) ? gs.chargerSpeed/1.5f : gs.chargerSpeed;
+
             // rotation & movement
             rotate();
             move();
 
             // cannon and states
-            cannon.update(delta, center, direction);
+            if(isActive) {cannon.update(delta, center, direction);};
             if(hp <= 0) {isAlive = false; isActive = false;}
+
+            // particle
+            spawnParticle();
 
         } else {
             playSound();

@@ -32,7 +32,7 @@ public abstract class Cannon {
     protected boolean isFriendly;
 
     // Audio
-    protected Sound shootSFX;
+    public Sound shootSFX;
     protected float volume;
     protected float pitch;
 
@@ -46,7 +46,7 @@ public abstract class Cannon {
     float scale;
 
     // bullet sfx
-    protected Sound bulletSFX;
+    public Sound bulletSFX;
     protected float bulletSFXVolume;
     protected float bulletSFXPitch;
 
@@ -91,6 +91,8 @@ public abstract class Cannon {
         this.bulletTexture = new Texture(path);
         this.scale = scale;
     }
+
+    public abstract void kill();
 
     public abstract void fire();
 

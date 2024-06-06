@@ -18,6 +18,9 @@ import com.gdx.main.util.Settings;
 
 public class HeavyBullet extends Projectile{
 
+    float alpha = 1f;
+    float currentAlpha = 1f;
+
     public HeavyBullet(boolean isFriendly, float x, float y, float rectSize, Vector2 initialDirection,
                        Stage stage, Stage subStage, Settings gs, Manager manager) {
         super(isFriendly, x, y, rectSize, initialDirection, stage, subStage, gs, manager);
@@ -80,6 +83,8 @@ public class HeavyBullet extends Projectile{
         center.add(direction.x * velocity * delta, direction.y * velocity * delta);
         rect.setCenter(center);
 
+        velocity -= velocity * 0.3f * delta;
+
         // sprite updates
         baseSprite.setCenter(center.x, center.y);
     }
@@ -93,11 +98,13 @@ public class HeavyBullet extends Projectile{
     @Override
     public void update(float delta, Mouse mouse) {
         this.delta = delta;
-
         move();
-        if(!isAlive) {
-            death();
-        }
+
+        currentAlpha -= 0.5f * delta;
+        baseSprite.setAlpha(currentAlpha);
+
+        if(!isAlive) {death();}
+        if(currentAlpha <= 0) {kill();}
     }
 
     @Override

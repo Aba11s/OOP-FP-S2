@@ -70,7 +70,7 @@ public class MenuScreen implements Screen, Buildable {
         Gdx.input.setInputProcessor(menuStage);
 
         /* BackStage */
-        bg1 = new CustomBackground("background/bg-1-1.png", 1, -3f, -3f, viewport);
+        bg1 = new CustomBackground("background/bg-1-2.png", 1, -3f, -3f, viewport);
         backStage.addActor(bg1);
         debugger.add(bg1);
 
@@ -78,7 +78,7 @@ public class MenuScreen implements Screen, Buildable {
         backStage.addActor(bg2);
         debugger.add(bg2);
 
-        bg3 = new CustomBackground("background/bg-3-1.png", 1, -12f, -12f, viewport);
+        bg3 = new CustomBackground("background/bg-3-2.png", 1, -12f, -12f, viewport);
         backStage.addActor(bg3);
         debugger.add(bg3);
 

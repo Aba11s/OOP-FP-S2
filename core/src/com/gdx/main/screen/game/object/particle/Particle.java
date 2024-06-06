@@ -12,12 +12,14 @@ import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.ParticleHandler;
 import com.gdx.main.screen.game.object.GameObject;
+import com.gdx.main.util.Manager;
 import org.w3c.dom.Text;
 
 public abstract class Particle extends Actor implements GameObject {
 
     TextureRegion[] regions;
     Sprite sprite;
+    Manager manager;
 
     Vector2 center; // position vector
     float scale; // scales size of image
@@ -29,7 +31,7 @@ public abstract class Particle extends Actor implements GameObject {
     float frameIncrement = 0;
     float speed;
 
-    public Particle(String path, int cols, int rows, Vector2 center,
+    public Particle(Texture texture, int cols, int rows, Vector2 center,
                     float scale, float alpha, float speed, boolean loop,
                     Stage stage) {
         this.center = new Vector2(center);
@@ -38,7 +40,6 @@ public abstract class Particle extends Actor implements GameObject {
         this.speed = speed;
         this.loop = loop;
 
-        Texture texture = new Texture(Gdx.files.internal(path));
         int tWidth = texture.getWidth(); int tHeight = texture.getHeight();
 
         // splits spritesheet into a 2d array

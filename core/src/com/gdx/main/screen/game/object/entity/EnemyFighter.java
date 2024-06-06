@@ -16,6 +16,7 @@ import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.object.cannon.BasicCannon;
 import com.gdx.main.screen.game.object.cannon.Cannon;
+import com.gdx.main.screen.game.object.particle.TrailParticle;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
@@ -34,6 +35,10 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
 
     // SFX
     private boolean isPlayed = false;
+
+    // Particle
+    private final Vector2 particleOffset1;
+    private final float particleOffsetAngle1;
 
     public EnemyFighter(Player player, float x, float y, Vector2 initialDirection,
                       Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
@@ -60,14 +65,18 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
         cannon = new BasicCannon(false, center, new Vector2(0,5), stage, subStage, gs, manager);
         // Cannon settings
         cannon.setSettings(gs.fighterFireRate);
-        cannon.setSFX("audio/sfx/laser-1.wav", 0.1f, 0.5f);
+        cannon.setSFX("audio/sfx/laser-1.wav", 0.02f, 0.5f);
         // Cannon bullet settings
         cannon.setBulletSettings(gs.bullet2Speed, gs.bullet2Damage, gs.bullet2Size);
         cannon.setBulletSFX("audio/sfx/impact-1.mp3", 0.1f, 0.5f);
-        cannon.setBulletTexture("02.png", 1f);
+        cannon.setBulletTexture("02.png", 0.3f);
 
         // Audio
         deathSFX = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/explosion-1.mp3"));
+
+        // Particle
+        particleOffset1 = new Vector2(0,-3);
+        particleOffsetAngle1 = particleOffset1.angleDeg();
     }
 
     @Override
@@ -123,7 +132,7 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
     private void animateDeath() {
         baseSprite.setRegion(baseRegions[frameIndex]);
         if(frameIndex < 8) {
-            frameIncrement += 1f;
+            frameIncrement += 0.5f;
             frameIndex = (int)frameIncrement;
         } else {
             kill();
@@ -135,6 +144,8 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
         this.remove(); // remove actor
         EntityHandler.remove(this); // remove final reference
         Debugger.remove(this); // removes from debugger
+        deathSFX.dispose();
+        cannon.kill();
     }
 
     private void move() {
@@ -181,6 +192,13 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
         baseSprite.setRotation(rotation);
     }
 
+    public void spawnParticle() {
+        Vector2 particleCenter = new Vector2(center);
+        Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
+        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed/2, false, subStage);
+    }
+
     @Override
     public void update(float delta, Mouse mouse) {
         this.delta = delta;
@@ -195,6 +213,9 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
             cannon.update(delta, center, direction);
             if(isActive) {cannon.fire();}
             if(hp <= 0) {isAlive = false; isActive = false;}
+
+            // trail particle
+            spawnParticle();
 
         } else {
             playSound();

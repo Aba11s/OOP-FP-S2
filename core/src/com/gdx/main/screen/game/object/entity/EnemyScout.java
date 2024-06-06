@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
+import com.gdx.main.screen.game.object.particle.TrailParticle;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
@@ -29,6 +30,10 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
 
     // SFX
     private boolean isPlayed = false;
+
+    // Particle
+    private final Vector2 particleOffset1;
+    private final float particleOffsetAngle1;
 
     public EnemyScout(Player player, float x, float y, Vector2 initialDirection,
                       Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
@@ -53,14 +58,18 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
 
         // audio
         deathSFX = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/explosion-1.mp3"));
+
+        // Particle
+        particleOffset1 = new Vector2(0,-1);
+        particleOffsetAngle1 = particleOffset1.angleDeg();
     }
 
     @Override
     protected void loadSprites() {
         // manually load assets
-        Texture texture = new Texture(Gdx.files.internal("textures/object/entity/enemy/scout-1.png"));
+        Texture texture = new Texture(Gdx.files.internal("textures/object/entity/enemy/scout-2.png"));
         int tWidth = texture.getWidth(); int tHeight = texture.getHeight();
-        int tiles = 10;
+        int tiles = 9;
 
         // splits texture
         TextureRegion[][] temp = TextureRegion.split(texture, tWidth/tiles, tHeight);
@@ -73,6 +82,7 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
         baseSprite = new Sprite(baseRegions[frameIndex]);
         baseSprite.setCenter(center.x, center.y);
         baseSprite.setRotation(rotation);
+        baseSprite.setScale(0.8f);
     }
 
     // collision
@@ -107,8 +117,8 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
 
     private void animateDeath() {
         baseSprite.setRegion(baseRegions[frameIndex]);
-        if(frameIndex < 9) {
-            frameIncrement += 1f;
+        if(frameIndex < 8) {
+            frameIncrement += 0.5f;
             frameIndex = (int)frameIncrement;
         } else {
             kill();
@@ -120,6 +130,7 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
         this.remove(); // remove actor
         EntityHandler.remove(this); // remove final reference
         Debugger.remove(this); // removes from debugger
+        deathSFX.dispose();
     }
 
     private void move() {
@@ -160,6 +171,13 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
         baseSprite.setRotation(rotation);
     }
 
+    public void spawnParticle() {
+        Vector2 particleCenter = new Vector2(center);
+        Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
+        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage);
+    }
+
     @Override
     public void update(float delta, Mouse mouse) {
         this.delta = delta;
@@ -168,6 +186,7 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
             setActive();
             rotate();
             move();
+            spawnParticle();
             if(hp <= 0) {isAlive = false; isActive = false;}
 
         } else {

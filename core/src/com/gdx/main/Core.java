@@ -35,6 +35,8 @@ public class Core extends Game {
 		gs = new Settings();
 		stats = new Stats();
 
+		manager.finishLoading();
+
 		// setups camera
 		screenWidth = Gdx.graphics.getWidth();
 		screenHeight = Gdx.graphics.getHeight();

@@ -17,8 +17,8 @@ public class BasicCannon extends Cannon {
         fireRate = gs.playerFireRate;
 
         shootSFX = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/laser-1.wav"));
-        volume = 0.1f;
-        pitch = 1f;
+        volume = 0.025f;
+        pitch = 0.75f;
 
         // default bullet settings
         speed = gs.bullet1Speed;
@@ -58,6 +58,12 @@ public class BasicCannon extends Cannon {
             // resets timer
             timer = 0;
         }
+    }
+
+    @Override
+    public void kill() {
+        shootSFX.dispose();
+        bulletSFX.dispose();
     }
 
     @Override

@@ -12,9 +12,7 @@ import com.gdx.main.Core;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.helper.ui.custom_items.CustomBackground;
-import com.gdx.main.screen.game.handler.CollisionHandler;
-import com.gdx.main.screen.game.handler.EntityHandler;
-import com.gdx.main.screen.game.handler.ProjectileHandler;
+import com.gdx.main.screen.game.handler.*;
 import com.gdx.main.screen.game.object.entity.EnemyCharger;
 import com.gdx.main.screen.game.object.entity.EnemyScout;
 import com.gdx.main.screen.game.object.entity.GameEntity;
@@ -43,7 +41,9 @@ public class GameScreen implements Screen, Buildable {
     // Handlers
     EntityHandler entityHandler;
     ProjectileHandler projectileHandler;
+    ParticleHandler particleHandler;
     CollisionHandler collisionHandler;
+    EventHandler eventHandler;
 
     // Stage
     GameStage backStage; // backgrounds
@@ -87,6 +87,9 @@ public class GameScreen implements Screen, Buildable {
         backStage.addActor(bg1);
         backStage.addActor(bg2);
         backStage.addActor(bg3);
+        bg1.setVisible(true);
+        bg2.setVisible(true);
+        bg3.setVisible(true);
     }
 
     private void beginGame(float delta) {
@@ -109,11 +112,12 @@ public class GameScreen implements Screen, Buildable {
         this.mainStage = new GameStage(viewport);
         this.hudStage = new GameStage(viewport);;
         // sets input processor to top level stage
-        Gdx.input.setInputProcessor(hudStage);
+        //Gdx.input.setInputProcessor(hudStage);
 
         // Handlers
         projectileHandler = new ProjectileHandler(viewport);
         entityHandler = new EntityHandler(viewport, camera, mainStage, subStage, debugger, stats, manager, gs);
+        particleHandler = new ParticleHandler();
         collisionHandler = new CollisionHandler();
 
         // Backgrounds
@@ -121,14 +125,11 @@ public class GameScreen implements Screen, Buildable {
         // objects
         player = new Player(viewport.getWorldWidth()/2, -20, new Vector2(1,0),
                 viewport, camera, mainStage, subStage, debugger, gs, manager, stats);
-        mainStage.addActor(player);
-        Debugger.add(player);
 
         entityHandler.setPlayer(player);
         collisionHandler.setPlayer(player);
 
-        testEntity = new EnemyCharger(player, 100, 100, new Vector2(0,1),
-                viewport, camera, mainStage, subStage, debugger, gs, manager, stats);
+        //testEntity = new EnemyCharger(player, 100, 100, new Vector2(0,1), viewport, camera, mainStage, subStage, debugger, gs, manager, stats);
     }
 
     private void update(float delta) {
@@ -136,12 +137,13 @@ public class GameScreen implements Screen, Buildable {
             isPaused = !isPaused;
         }
         this.delta = (isPaused) ? 0 : delta;
-
+        System.out.println(1/this.delta);
         mouse.update();
 
         // handlers
         projectileHandler.update(this.delta);
         entityHandler.update(this.delta, mouse);
+        particleHandler.update(this.delta);
         collisionHandler.update(this.delta);
 
         // backgrounds
