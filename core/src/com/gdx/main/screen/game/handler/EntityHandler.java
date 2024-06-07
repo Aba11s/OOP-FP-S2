@@ -104,7 +104,7 @@ public class EntityHandler {
         spawn(delta);
 
         // debug
-        System.out.println("entities:" + gameEntities.size() +","+ entityTrash.size());
+//        System.out.println("entities:" + gameEntities.size() +","+ entityTrash.size());
     }
 
     // Spawn Entities

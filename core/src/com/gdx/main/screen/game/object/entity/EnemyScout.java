@@ -44,13 +44,13 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
         isDense = false;
 
         // default settings
-        rotationSpeed = 60f;
-        maxSpeed = 120f;
+        rotationSpeed = gs.scoutRotation;
+        maxSpeed = gs.scoutSpeed;
         speed = maxSpeed;
 
-        hp = 1;
-        dmg = 100;
-        rect.setSize(20);
+        hp = gs.scoutHP;
+        dmg = gs.scoutDMG;
+        rect.setSize(gs.scoutSize);
 
         // sets initial direction;
         target.set(player.getCenter().x - center.x, player.getCenter().y - center.y);
@@ -109,8 +109,8 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
     private void playSound() {
         if(!isPlayed) {
             long id = deathSFX.play();
-            deathSFX.setVolume(id, 0.10f);
-            deathSFX.setPitch(id, 2f);
+            deathSFX.setVolume(id, 0.1f);
+            deathSFX.setPitch(id, 1.5f);
             isPlayed = true;
         }
     }
@@ -177,7 +177,7 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
         Vector2 particleCenter = new Vector2(center);
         Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
         new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
-                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage);
+                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage).setColor(Color.FIREBRICK);
     }
 
     @Override
@@ -189,7 +189,11 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
             rotate();
             move();
             spawnParticle();
-            if(hp <= 0) {isAlive = false; isActive = false;}
+            if(hp <= 0) {
+                isAlive = false;
+                isActive = false;
+                stats.addScore(gs.scoutScore);
+            }
 
         } else {
             playSound();

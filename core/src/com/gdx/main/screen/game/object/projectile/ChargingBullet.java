@@ -68,6 +68,7 @@ public class ChargingBullet extends Projectile{
     // updates position
     public void move(Vector2 position) {
         center.set(position);
+        rect.setCenter(center);
         baseSprite.setCenter(center.x, center.y);
     }
 

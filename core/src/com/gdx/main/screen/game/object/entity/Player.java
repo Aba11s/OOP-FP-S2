@@ -54,13 +54,13 @@ public class Player extends GameEntity {
         rotationSpeed = 200f;
         maxSpeed = 200f;
         speedDecay = -0.012f * 60;
-        hp = 100;
+        hp = gs.playerHP;
         dmg = 0;
 
         // initial velocity and direction during screen transition
         velocity.set(0f, maxSpeed);
         direction.set(0,1);
-        rect.setSize(10);
+        rect.setSize(15);
 
         // hell yeah
         isPlayer = true;
@@ -233,6 +233,10 @@ public class Player extends GameEntity {
 
             // particle
             spawnParticle();
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.H)) {
+            hp -= 10f;
         }
     }
 

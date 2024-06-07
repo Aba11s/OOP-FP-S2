@@ -5,6 +5,11 @@ public class Settings {
     // -- Game settings -- //
     public float initialSpawnDelay = 5f;
 
+    // -- Score settings -- //
+    public int scoutScore = 10;
+    public int fighterScore = 50;
+    public int chargerScore = 200;
+
     /*
     OBJECTS
      */
@@ -15,6 +20,8 @@ public class Settings {
     public int playerSpawnSize = 0;
 
     public float playerFireRate = 4f;
+    public float playerHP = 100f;
+    public float playerDMG = 0;
 
     // SCOUT
     public int scoutWeight = 120;
@@ -25,19 +32,19 @@ public class Settings {
     public float scoutRotation = 100f;
     public float scoutHP = 10f;
     public float scoutDMG = 10f;
-    public float scoutSize = 15f;
+    public float scoutSize = 12f;
 
     // FIGHTER
     public int fighterWeight = 40;
     public int fighterSpawnNumber = 4;
     public int fighterSpawnSize = 5;
 
-    public float fighterFireRate = .5f;
+    public float fighterFireRate = .25f;
     public float fighterSpeed = 80f;
     public float fighterRotation = 50f;
     public float fighterHP = 50f;
     public float fighterDMG = 10f;
-    public float fighterSize = 20f;
+    public float fighterSize = 18f;
 
     // CHARGER
     public int chargerWeight = 20;

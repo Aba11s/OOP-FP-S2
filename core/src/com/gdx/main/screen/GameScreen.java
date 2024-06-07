@@ -6,20 +6,17 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.Core;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
-import com.gdx.main.helper.ui.custom_items.CustomBackground;
+import com.gdx.main.helper.actor.custom_items.CustomBackground;
+import com.gdx.main.screen.game.display.hud.ClockDisplay;
+import com.gdx.main.screen.game.display.hud.HUD;
 import com.gdx.main.screen.game.handler.*;
-import com.gdx.main.screen.game.object.entity.EnemyCharger;
-import com.gdx.main.screen.game.object.entity.EnemyScout;
 import com.gdx.main.screen.game.object.entity.GameEntity;
 import com.gdx.main.screen.game.object.entity.Player;
-import com.gdx.main.screen.game.object.particle.Particle;
-import com.gdx.main.screen.stage.GameStage;
-import com.gdx.main.screen.stage.MenuStage;
+import com.gdx.main.screen.game.stage.GameStage;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
@@ -60,6 +57,9 @@ public class GameScreen implements Screen, Buildable {
     // Objects
     Player player;
     GameEntity testEntity;
+
+    // HUD
+    HUD hud;
 
     // misc
     float beginTimer = 3f;
@@ -130,6 +130,9 @@ public class GameScreen implements Screen, Buildable {
         collisionHandler.setPlayer(player);
 
         //testEntity = new EnemyCharger(player, 100, 100, new Vector2(0,1), viewport, camera, mainStage, subStage, debugger, gs, manager, stats);
+
+        // HUD
+        hud = new HUD(player ,hudStage, viewport, gs, manager, stats);
     }
 
     private void update(float delta) {
@@ -137,7 +140,7 @@ public class GameScreen implements Screen, Buildable {
             isPaused = !isPaused;
         }
         this.delta = (isPaused) ? 0 : delta;
-        //System.out.println(1/this.delta);
+//        System.out.println(this.delta);
         mouse.update();
 
         // handlers
@@ -152,6 +155,7 @@ public class GameScreen implements Screen, Buildable {
         bg3.update(this.delta);
 
         // hud & ui
+        hud.update(this.delta);
 
         // misc
         if(!flag1) {beginGame(this.delta);}

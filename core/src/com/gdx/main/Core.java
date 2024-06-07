@@ -59,6 +59,6 @@ public class Core extends Game {
 	@Override // root render
 	public void render() {
 		super.render();
-		//debugger.update();
+//		debugger.update();
 	}
 }

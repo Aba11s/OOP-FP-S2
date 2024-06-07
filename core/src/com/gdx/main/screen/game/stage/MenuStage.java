@@ -1,11 +1,11 @@
-package com.gdx.main.screen.stage;
+package com.gdx.main.screen.game.stage;
 
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class GameStage extends Stage {
+public class MenuStage extends Stage {
 
-    public GameStage(Viewport viewport) {
+    public MenuStage(Viewport viewport) {
         super(viewport);
     }
 

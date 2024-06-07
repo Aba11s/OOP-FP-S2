@@ -1,4 +1,4 @@
-package com.gdx.main.helper.ui.custom_items;
+package com.gdx.main.helper.actor.custom_items;
 
 public interface MouseListener {
 

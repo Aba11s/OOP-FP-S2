@@ -1,5 +1,6 @@
 package com.gdx.main.screen.game.object.particle;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -23,6 +24,10 @@ public class TrailParticle extends Particle {
     @Override
     public void animate() {
 
+    }
+
+    public void setColor(Color color) {
+        sprite.setColor(color);
     }
 
     @Override

@@ -198,7 +198,7 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
         Vector2 particleCenter = new Vector2(center);
         Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
         new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
-                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed/2, false, subStage);
+                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed/2, false, subStage).setColor(Color.FIREBRICK);;
     }
 
     @Override
@@ -212,9 +212,15 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
             move();
 
             // cannon and states
-            cannon.update(delta, center, direction);
-            if(isActive) {cannon.fire();}
-            if(hp <= 0) {isAlive = false; isActive = false;}
+            if(isActive) {
+                cannon.update(delta, center, direction);
+                cannon.fire();
+            }
+            if(hp <= 0) {
+                isAlive = false;
+                isActive = false;
+                stats.addScore(gs.fighterScore);
+            }
 
             // trail particle
             spawnParticle();

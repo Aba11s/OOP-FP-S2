@@ -1,4 +1,4 @@
-package com.gdx.main.helper.ui.custom_items;
+package com.gdx.main.helper.actor.custom_items;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -61,6 +61,7 @@ public class CustomText extends Actor implements MouseListener, Debuggable {
 
     public void setText(String text) {
         this.text = text;
+        GlyphLayout newLayout = new GlyphLayout(font, text);
     }
 
     public void setAcceleration(float acceleration) {
