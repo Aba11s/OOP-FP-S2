@@ -31,5 +31,11 @@ public class ParticleHandler {
 
         // clears trash
         particleTrash.clear();
+
+        // debug
+        System.out.println("particles:" + particles.size() +","+ particleTrash.size());
+        for(int i = 0; i < 1000; i++) {
+            System.out.print("A");
+        }
     }
 }

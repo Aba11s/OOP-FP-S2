@@ -82,12 +82,12 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
     @Override
     protected void loadSprites() {
         // manually load assets
-        Texture texture = new Texture(Gdx.files.internal("textures/object/entity/enemy/fighter-2.png"));
-        int tWidth = texture.getWidth(); int tHeight = texture.getHeight();
+        baseTexture = manager.get("textures/object/entity/enemy/fighter-2.png", Texture.class);
+        int tWidth = baseTexture.getWidth(); int tHeight = baseTexture.getHeight();
         int tiles = 9;
 
         // splits texture
-        TextureRegion[][] temp = TextureRegion.split(texture, tWidth/tiles, tHeight);
+        TextureRegion[][] temp = TextureRegion.split(baseTexture, tWidth/tiles, tHeight);
         baseRegions = new TextureRegion[tiles];
 
         // converts to 1D array
@@ -144,6 +144,8 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
         this.remove(); // remove actor
         EntityHandler.remove(this); // remove final reference
         Debugger.remove(this); // removes from debugger
+
+        // disposes disposable assets
         deathSFX.dispose();
         cannon.kill();
     }

@@ -88,7 +88,7 @@ public abstract class Cannon {
     }
 
     public void setBulletTexture(String path, float scale) {
-        this.bulletTexture = new Texture(path);
+        this.bulletTexture = manager.get(path, Texture.class);
         this.scale = scale;
     }
 

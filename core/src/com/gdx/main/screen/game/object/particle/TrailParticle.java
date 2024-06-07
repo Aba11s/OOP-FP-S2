@@ -39,7 +39,6 @@ public class TrailParticle extends Particle {
 
         if(alpha <= 0) {done = true;}
         if(done) {kill();}
-        System.out.println(delta);
     }
 
     @Override

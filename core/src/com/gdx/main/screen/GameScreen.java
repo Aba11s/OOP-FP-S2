@@ -137,14 +137,14 @@ public class GameScreen implements Screen, Buildable {
             isPaused = !isPaused;
         }
         this.delta = (isPaused) ? 0 : delta;
-        System.out.println(1/this.delta);
+        //System.out.println(1/this.delta);
         mouse.update();
 
         // handlers
         projectileHandler.update(this.delta);
         entityHandler.update(this.delta, mouse);
         particleHandler.update(this.delta);
-        collisionHandler.update(this.delta);
+        collisionHandler.update(this.delta);;
 
         // backgrounds
         bg1.update(this.delta);

@@ -38,7 +38,7 @@ public class ChargingBullet extends Projectile{
     @Override
     protected void loadSprites() {
         baseRegions = new TextureRegion[] {
-                new TextureRegion(new Texture("02.png"))
+                new TextureRegion(manager.get("02.png", Texture.class))
         };
         baseRegion = baseRegions[0];
         baseSprite = new Sprite(baseRegion);

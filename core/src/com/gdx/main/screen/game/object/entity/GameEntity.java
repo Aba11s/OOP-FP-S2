@@ -2,6 +2,7 @@ package com.gdx.main.screen.game.object.entity;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -56,6 +57,7 @@ public abstract class GameEntity extends Actor implements GameObject {
     public float hp, dmg;
 
     // -- Sprite -- //
+    protected Texture baseTexture;
     protected TextureRegion baseRegion;
     protected TextureRegion[] baseRegions;
     protected Sprite baseSprite;
