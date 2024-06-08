@@ -104,7 +104,7 @@ public class EntityHandler {
         spawn(delta);
 
         // debug
-//        System.out.println("entities:" + gameEntities.size() +","+ entityTrash.size());
+        System.out.println("entities:" + gameEntities.size() +","+ entityTrash.size());
     }
 
     // Spawn Entities
@@ -189,5 +189,9 @@ public class EntityHandler {
         spawnPos.setAngleDeg(angle);
         spawnPos.add(position);
         return spawnPos;
+    }
+
+    public void clear() {
+        gameEntities.clear();
     }
 }

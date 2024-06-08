@@ -33,4 +33,8 @@ public class Debugger {
 
         System.out.println(items.size());
     }
+
+    public void clear() {
+        items.clear();
+    }
 }

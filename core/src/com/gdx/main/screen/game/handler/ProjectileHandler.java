@@ -45,7 +45,11 @@ public class ProjectileHandler {
         projectileTrash.clear();
 
         // debug
-        System.out.println("projectiles:" + projectiles.size() +","+ projectileTrash.size());
+//        System.out.println("projectiles:" + projectiles.size() +","+ projectileTrash.size());
+    }
+
+    public void clear() {
+        projectiles.clear();
     }
 
 }

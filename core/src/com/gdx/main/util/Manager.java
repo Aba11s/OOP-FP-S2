@@ -13,6 +13,7 @@ public class Manager extends AssetManager {
         loadParticles();
         loadEntities();
         loadProjectiles();
+        loadMisc();
     }
 
     private void loadParticles() {
@@ -28,5 +29,9 @@ public class Manager extends AssetManager {
     private void loadProjectiles() {
         super.load("01.png", Texture.class);
         super.load("02.png", Texture.class);
+    }
+
+    private void loadMisc() {
+        super.load("1x1.png", Texture.class);
     }
 }

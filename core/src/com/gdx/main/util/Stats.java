@@ -9,7 +9,7 @@ public class Stats {
     Preferences pref = Gdx.app.getPreferences("myStats");
     String highscore = "highscore";
 
-    int score;
+    private int score;
 
     public Stats() {
         score = 0;
@@ -25,6 +25,10 @@ public class Stats {
 
     public void addScore(int points) {
         this.score += points;
+    }
+
+    public void resetScore() {
+        this.score = 0;
     }
 
     public void finalizeHighScore() {

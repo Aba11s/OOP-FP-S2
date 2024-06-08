@@ -20,8 +20,14 @@ public class Settings {
     public int playerSpawnSize = 0;
 
     public float playerFireRate = 4f;
+    public float playerAcceleration = 500f;
+    public float playerSpeed = 220f;
+    public float playerRotation = 250f;
     public float playerHP = 100f;
     public float playerDMG = 0;
+
+    public float playerInvTime = 0.2f;
+
 
     // SCOUT
     public int scoutWeight = 120;

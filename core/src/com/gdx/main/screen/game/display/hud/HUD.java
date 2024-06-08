@@ -3,12 +3,14 @@ package com.gdx.main.screen.game.display.hud;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.gdx.main.helper.misc.Mouse;
+import com.gdx.main.screen.game.display.Menu;
 import com.gdx.main.screen.game.object.entity.Player;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
 
-public class HUD {
+public class HUD extends Menu {
 
     // GDX objects
     Stage stage;
@@ -30,14 +32,7 @@ public class HUD {
 
     public HUD(Player player, Stage stage, Viewport viewport,
                Settings gs, Manager manager, Stats stats) {
-
-        this.player = player;
-        this.stage = stage;
-        this.viewport = viewport;
-
-        this.gs = gs;
-        this.manager = manager;
-        this.stats = stats;
+        super(stage, viewport, gs, manager, stats);
 
         // initialize display objects
         clockDisplay = new ClockDisplay(stage, viewport, gs, manager, stats);
@@ -46,7 +41,8 @@ public class HUD {
 
     }
 
-    public void update(float delta) {
+    @Override
+    public void update(float delta, Mouse mouse) {
         clockDisplay.update(delta);
         scoreDisplay.update(delta);
         healthBar.update(delta);

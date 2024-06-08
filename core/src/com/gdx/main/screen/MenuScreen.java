@@ -1,20 +1,27 @@
 package com.gdx.main.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.Core;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.helper.actor.custom_items.CustomBackground;
 import com.gdx.main.helper.actor.custom_items.CustomText;
+import com.gdx.main.screen.game.display.Background;
 import com.gdx.main.screen.game.stage.MenuStage;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
+
+import java.util.Arrays;
 
 
 public class MenuScreen implements Screen, Buildable {
@@ -34,18 +41,22 @@ public class MenuScreen implements Screen, Buildable {
     MenuStage menuStage; // text, buttons, ui
 
     // background
-    CustomBackground bg1;
-    CustomBackground bg2;
-    CustomBackground bg3;
+    Background background;
 
     // Text
     CustomText headText;
     CustomText playText;
     CustomText exitText;
 
+    // Spritebatch
+    SpriteBatch batch1;
+
     // transition
     boolean transition = false;
     float transitionTimer = 1.5f; // in seconds
+
+    // Sound
+
 
     public MenuScreen(Core core, Manager manager, Settings gs,
                       Viewport viewport, OrthographicCamera camera,
@@ -59,6 +70,9 @@ public class MenuScreen implements Screen, Buildable {
         this.debugger = debugger;
         this.stats = stats;
 
+        batch1 = new SpriteBatch();
+        batch1.setProjectionMatrix(camera.combined);
+
         build();
     }
 
@@ -69,17 +83,7 @@ public class MenuScreen implements Screen, Buildable {
         Gdx.input.setInputProcessor(menuStage);
 
         /* BackStage */
-        bg1 = new CustomBackground("background/bg-1-2.png", 1, -3f, -3f, viewport);
-        backStage.addActor(bg1);
-        debugger.add(bg1);
-
-        bg2 = new CustomBackground("background/bg-2-2.png", 1, -6f, -6f, viewport);
-        backStage.addActor(bg2);
-        debugger.add(bg2);
-
-        bg3 = new CustomBackground("background/bg-3-2.png", 1, -12f, -12f, viewport);
-        backStage.addActor(bg3);
-        debugger.add(bg3);
+        background = new Background(backStage, viewport);
 
         /* MenuStage */
 
@@ -88,7 +92,7 @@ public class MenuScreen implements Screen, Buildable {
                 viewport.getWorldWidth()/2, viewport.getWorldHeight() - 100, true,
                 20,20,100, Color.WHITE);
         menuStage.addActor(headText);
-        debugger.add(headText);
+        Debugger.add(headText);
 
         // start text button
         playText = new CustomText("START", "fonts/Minecraft.ttf",
@@ -99,10 +103,10 @@ public class MenuScreen implements Screen, Buildable {
             @Override
             public void hovered() {setColor(Color.YELLOW);}
             @Override
-            public void clicked() {transition = true;}
+            public void clicked() {switchScreen();}
         };
         menuStage.addActor(playText);
-        debugger.add(playText);
+        Debugger.add(playText);
 
         // Exit text button
         exitText = new CustomText("EXIT", "fonts/Minecraft.ttf",
@@ -117,7 +121,12 @@ public class MenuScreen implements Screen, Buildable {
             public void clicked() {Gdx.app.exit();}
         };
         menuStage.addActor(exitText);
-        debugger.add(exitText);
+        Debugger.add(exitText);
+    }
+
+    public void setBackground(Background background) {
+//        this.background = new Background(backStage, viewport);
+        this.background.addActor(backStage);
     }
 
     private void transitionScreen(float delta) {
@@ -128,16 +137,18 @@ public class MenuScreen implements Screen, Buildable {
         }
         else if (transitionTimer <= 0) {
             switchScreen();
+            transitionTimer = 1.5f;
+            transition = false;
         }
         transitionTimer -= delta;
     }
 
     private void switchScreen() {
-        GameScreen gameScreen = new GameScreen(core, manager, gs, viewport, camera, mouse, debugger, stats);
-        gameScreen.loadPreviousBackground(bg1,bg2,bg3);
-        core.setScreen(gameScreen);
+        debugger.clear();
 
-        this.dispose();
+        GameScreen newScreen = new GameScreen(core, manager, gs, viewport, camera, mouse, debugger, stats);
+        newScreen.setBackground(background);
+        core.setScreen(newScreen);
     }
 
     /* --- Render & Updates --- */
@@ -145,16 +156,14 @@ public class MenuScreen implements Screen, Buildable {
     private void update(float delta) {
         mouse.update();
 
-        bg1.update(delta);
-        bg2.update(delta);
-        bg3.update(delta);
+        background.update(delta);
 
         headText.update(delta, mouse);
         playText.update(delta, mouse);
         exitText.update(delta, mouse);
 
-        if(transition) {
-            transitionScreen(delta);
+        if(Gdx.input.isKeyJustPressed(Input.Keys.K)) {
+            switchScreen();
         }
     }
 
@@ -169,6 +178,10 @@ public class MenuScreen implements Screen, Buildable {
         // draw methods
         backStage.draw();
         menuStage.draw();
+
+
+        System.out.println("MENU");
+
     }
 
     @Override
@@ -188,7 +201,15 @@ public class MenuScreen implements Screen, Buildable {
 
     @Override
     public void show() {
+        for(Actor actor : backStage.getActors()) {
+            actor.setVisible(true);
+        }
+        for(Actor actor : menuStage.getActors()) {
+            actor.setVisible(true);
+        }
 
+        // reset score
+        stats.resetScore();
     }
 
     @Override

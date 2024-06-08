@@ -3,6 +3,7 @@ package com.gdx.main.screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
@@ -10,8 +11,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.Core;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
-import com.gdx.main.helper.actor.custom_items.CustomBackground;
-import com.gdx.main.screen.game.display.hud.ClockDisplay;
+import com.gdx.main.screen.game.display.Background;
+import com.gdx.main.screen.game.display.EndMenu;
+import com.gdx.main.screen.game.display.PauseMenu;
 import com.gdx.main.screen.game.display.hud.HUD;
 import com.gdx.main.screen.game.handler.*;
 import com.gdx.main.screen.game.object.entity.GameEntity;
@@ -22,7 +24,8 @@ import com.gdx.main.util.Settings;
 import com.gdx.main.util.Stats;
 
 public class GameScreen implements Screen, Buildable {
-    boolean isPaused = false;
+    boolean paused = false;
+    boolean end = false;
     float delta;
 
     Core core;
@@ -47,12 +50,11 @@ public class GameScreen implements Screen, Buildable {
     GameStage subStage; // particles
     GameStage mainStage; // objects
     GameStage hudStage; // hud, ui
-    GameStage pauseStage; // pause stage
+    GameStage pauseStage;
+    GameStage endStage; // pause stage
 
     // background
-    CustomBackground bg1;
-    CustomBackground bg2;
-    CustomBackground bg3;
+    Background background;
 
     // Objects
     Player player;
@@ -60,10 +62,14 @@ public class GameScreen implements Screen, Buildable {
 
     // HUD
     HUD hud;
+    PauseMenu pauseMenu;
+    EndMenu endMenu;
 
     // misc
     float beginTimer = 3f;
     boolean flag1 = false;
+
+    Music music = Gdx.audio.newMusic(Gdx.files.internal("audio/music/War.ogg"));
 
     public GameScreen(Core core, Manager manager, Settings gs,
                       Viewport viewport, OrthographicCamera camera,
@@ -78,18 +84,16 @@ public class GameScreen implements Screen, Buildable {
         this.stats = stats;
 
         build();
+
+        // music
+        music.play();
+        music.setVolume(0.1f);
+        music.setPosition(39.5f);
     }
 
-    public void loadPreviousBackground(CustomBackground bg1, CustomBackground bg2, CustomBackground bg3) {
-        this.bg1 = bg1;
-        this.bg2 = bg2;
-        this.bg3 = bg3;
-        backStage.addActor(bg1);
-        backStage.addActor(bg2);
-        backStage.addActor(bg3);
-        bg1.setVisible(true);
-        bg2.setVisible(true);
-        bg3.setVisible(true);
+    public void setBackground(Background background) {
+        this.background = background;
+        this.background.addActor(backStage);
     }
 
     private void beginGame(float delta) {
@@ -110,7 +114,9 @@ public class GameScreen implements Screen, Buildable {
         this.backStage = new GameStage(viewport);
         this.subStage = new GameStage(viewport);
         this.mainStage = new GameStage(viewport);
-        this.hudStage = new GameStage(viewport);;
+        this.hudStage = new GameStage(viewport);
+        this.pauseStage = new GameStage(viewport);
+        this.endStage = new GameStage(viewport);
         // sets input processor to top level stage
         //Gdx.input.setInputProcessor(hudStage);
 
@@ -133,14 +139,51 @@ public class GameScreen implements Screen, Buildable {
 
         // HUD
         hud = new HUD(player ,hudStage, viewport, gs, manager, stats);
+        pauseMenu = new PauseMenu(this, pauseStage, viewport, gs, manager, stats);
+        endMenu = new EndMenu(this, endStage, viewport, gs, manager, stats);
+    }
+
+
+    private void pauseGame(float delta) {
+        // if escape key is pressed pause/resume game
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {setPaused(!paused);}
+        this.delta = (paused) ? 0 : delta;
+
+        if(paused && !end) {pauseMenu.update(delta, mouse);}
+    }
+
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
+    private void endGame(float delta) {
+        if(player.hp <= 0) {
+            this.end = true;
+            this.paused = true;
+            music.pause();
+        }
+
+        if(end) {
+            endMenu.update(delta, mouse);
+        }
+    }
+
+    public void switchScreen() {
+        core.setScreen(core.menuScreen);
+
+        // clear objects
+        entityHandler.clear();
+        particleHandler.clear();
+        projectileHandler.clear();
+        debugger.clear();
+
+        core.menuScreen.setBackground(background);
+        stats.finalizeHighScore();
     }
 
     private void update(float delta) {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            isPaused = !isPaused;
-        }
-        this.delta = (isPaused) ? 0 : delta;
-//        System.out.println(this.delta);
+        pauseGame(delta);
+        endGame(this.delta);
         mouse.update();
 
         // handlers
@@ -150,12 +193,10 @@ public class GameScreen implements Screen, Buildable {
         collisionHandler.update(this.delta);;
 
         // backgrounds
-        bg1.update(this.delta);
-        bg2.update(this.delta);
-        bg3.update(this.delta);
+        background.update(this.delta);
 
         // hud & ui
-        hud.update(this.delta);
+        hud.update(this.delta, mouse);
 
         // misc
         if(!flag1) {beginGame(this.delta);}
@@ -172,6 +213,8 @@ public class GameScreen implements Screen, Buildable {
         subStage.draw();
         mainStage.draw();
         hudStage.draw();
+        if(paused && !end) {pauseStage.draw();}
+        if(end) {endStage.draw();}
     }
 
     @Override
@@ -197,14 +240,17 @@ public class GameScreen implements Screen, Buildable {
 
     @Override
     public void hide() {
-
+        //this.dispose();
     }
 
     @Override
     public void dispose() {
         //stages
         backStage.dispose();
+        subStage.dispose();
         mainStage.dispose();
         hudStage.dispose();
+        pauseStage.dispose();
+        endStage.dispose();
     }
 }

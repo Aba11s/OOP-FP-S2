@@ -38,4 +38,8 @@ public class ParticleHandler {
 //            System.out.print("A");
 //        }
     }
+
+    public void clear() {
+        particles.clear();
+    }
 }

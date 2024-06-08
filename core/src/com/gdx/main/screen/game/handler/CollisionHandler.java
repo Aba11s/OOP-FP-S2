@@ -37,7 +37,8 @@ public class CollisionHandler {
             } else {
                 for(Projectile projectile : ProjectileHandler.projectiles) {
                     if(!projectile.isFriendly && projectile.rect.overlaps(entity.rect)) {
-                        System.out.println("Player got hit");
+                        player.collide(projectile);
+                        projectile.collide(player);
                     }
                 }
             }

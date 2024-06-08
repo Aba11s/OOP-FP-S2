@@ -32,6 +32,7 @@ public class Player extends GameEntity {
     private final float speedDecay;
 
     private float alpha = 1;
+    private float invincibleTimer;
 
     // Cannon
     private final Cannon cannon1;
@@ -50,12 +51,13 @@ public class Player extends GameEntity {
         super(x, y, initialDirection, viewport, camera, stage, subStage, debugger, gs, manager, stats);
 
         // import from game settings
-        acceleration = 400f;
-        rotationSpeed = 200f;
-        maxSpeed = 200f;
+        acceleration = gs.playerAcceleration;
+        rotationSpeed = gs.playerRotation;
+        maxSpeed = gs.playerSpeed;
         speedDecay = -0.012f * 60;
         hp = gs.playerHP;
         dmg = 0;
+        invincibleTimer = gs.playerInvTime;
 
         // initial velocity and direction during screen transition
         velocity.set(0f, maxSpeed);
@@ -64,6 +66,7 @@ public class Player extends GameEntity {
 
         // hell yeah
         isPlayer = true;
+        isDense = false;
 
         // setups cannon
         cannon1 = new BasicCannon(true, center, new Vector2(6, 8), stage, subStage, gs, manager);
@@ -126,6 +129,7 @@ public class Player extends GameEntity {
     public void collide(GameEntity entity) {
         if(entity.isActive && !isInvincible) {
             hp -= entity.dmg;
+            isInvincible = true;
         }
     }
 
@@ -133,7 +137,15 @@ public class Player extends GameEntity {
     public void collide(Projectile projectile) {
         if(!isInvincible) {
             hp -= projectile.damage;
+            isInvincible = true;
         }
+    }
+
+    private void updateInvincibility() {
+        if(invincibleTimer < 0) {
+            isInvincible = false;
+            invincibleTimer = gs.playerInvTime;
+        } else {invincibleTimer -= delta;}
     }
 
     @Override
@@ -221,6 +233,8 @@ public class Player extends GameEntity {
 
         // if player is still alive
         if(isAlive) {
+            updateInvincibility();
+
             // update cannons
             cannon1.update(this.delta, center, direction);
             cannon2.update(this.delta, center, direction);
