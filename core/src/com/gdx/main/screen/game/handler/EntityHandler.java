@@ -61,7 +61,7 @@ public class EntityHandler {
         position.set(viewport.getWorldWidth()/2, viewport.getWorldHeight()/2);
 
         initialSpawnDelay = gs.initialSpawnDelay;
-        spawnDelay = 0f;
+        spawnDelay = 5f;
         maxSpace = 100;
         currentSpace = 100;
 

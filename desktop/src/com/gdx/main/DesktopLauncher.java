@@ -14,5 +14,6 @@ public class DesktopLauncher {
 		config.setTitle("Sigma");
 		config.setWindowIcon("badlogic.jpg");
 		new Lwjgl3Application(new Core(), config);
+
 	}
 }

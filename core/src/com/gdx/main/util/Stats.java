@@ -25,10 +25,16 @@ public class Stats {
 
     public void addScore(int points) {
         this.score += points;
+        System.out.println(score + " " + pref.getInteger(highscore));
     }
 
     public void resetScore() {
         this.score = 0;
+    }
+
+    public void resetHighScore() {
+        pref.putInteger(highscore, 0);
+        pref.flush();
     }
 
     public void finalizeHighScore() {

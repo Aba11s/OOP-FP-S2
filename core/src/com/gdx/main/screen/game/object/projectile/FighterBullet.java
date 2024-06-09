@@ -13,14 +13,17 @@ import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.ProjectileHandler;
 import com.gdx.main.screen.game.object.entity.GameEntity;
+import com.gdx.main.screen.game.object.particle.AnimatedParticle;
+import com.gdx.main.screen.game.object.particle.FadeParticle;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 
-public class HeavyBullet extends Projectile{
 
-    float currentAlpha = 1f;
+public class FighterBullet extends Projectile {
 
-    public HeavyBullet(boolean isFriendly, float x, float y, float rectSize, Vector2 initialDirection,
+    float alpha = 1;
+
+    public FighterBullet(boolean isFriendly, float x, float y, float rectSize, Vector2 initialDirection,
                        Stage stage, Stage subStage, Settings gs, Manager manager) {
         super(isFriendly, x, y, rectSize, initialDirection, stage, subStage, gs, manager);
 
@@ -58,7 +61,21 @@ public class HeavyBullet extends Projectile{
     // collision
     @Override
     public void collide(GameEntity entity) {
-        if(entity.isDense) {isAlive = false;}
+        if(entity.isDense) {
+            isAlive = false; spawnParticle();
+        }
+    }
+
+    private void spawnParticle() {
+        new FadeParticle(
+                manager.get("textures/object/particle/bullet-impact-sprite-1.png"), 1, 1, center, 0.1f,
+                4, 1, -6, 1, false, rotation, Color.valueOf("cbfff5"), stage
+        );
+
+        // spawn small explosion
+        new AnimatedParticle(
+                manager.get("textures/object/particle/bullet-impact-ani-explosion-2.png"), 6,1, center,
+                0.55f, 1, 30, false, stage);
     }
 
     private void death() {
@@ -82,8 +99,6 @@ public class HeavyBullet extends Projectile{
         center.add(direction.x * velocity * delta, direction.y * velocity * delta);
         rect.setCenter(center);
 
-        velocity -= velocity * 0.3f * delta;
-
         // sprite updates
         baseSprite.setCenter(center.x, center.y);
     }
@@ -91,19 +106,21 @@ public class HeavyBullet extends Projectile{
     // rotate method only called in constructor because the bullet
     // moves linearly and in a straight line
     public void rotate() {
-        baseSprite.rotate(direction.angleDeg());
+        rotation = direction.angleDeg();
+        baseSprite.rotate(rotation);
     }
 
     @Override
     public void update(float delta, Mouse mouse) {
         this.delta = delta;
+
         move();
 
-        currentAlpha -= 0.5f * delta;
-        baseSprite.setAlpha(currentAlpha);
+        alpha -= 0.5f * delta;
+        baseSprite.setAlpha(alpha);
 
         if(!isAlive) {death();}
-        if(currentAlpha <= 0) {kill();}
+        if(alpha <= 0) {kill();}
     }
 
     @Override

@@ -13,6 +13,8 @@ import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.ProjectileHandler;
 import com.gdx.main.screen.game.object.entity.GameEntity;
+import com.gdx.main.screen.game.object.particle.AnimatedParticle;
+import com.gdx.main.screen.game.object.particle.FadeParticle;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 
@@ -56,7 +58,21 @@ public class BasicBullet extends Projectile{
     // collision
     @Override
     public void collide(GameEntity entity) {
-        if(entity.isDense) {isAlive = false;}
+        if(entity.isDense) {
+            isAlive = false; spawnParticle();
+        }
+    }
+
+    private void spawnParticle() {
+        new FadeParticle(
+                manager.get("textures/object/particle/bullet-impact-sprite-1.png"), 1, 1, center, 0.1f,
+                4, 1, -6, 1, false, rotation, Color.valueOf("cbfff5"), stage
+        );
+
+        // spawn small explosion
+        new AnimatedParticle(
+                manager.get("textures/object/particle/bullet-impact-ani-explosion-2.png"), 6,1, center,
+                0.55f, 1, 30, false, stage);
     }
 
     private void death() {
@@ -87,7 +103,8 @@ public class BasicBullet extends Projectile{
     // rotate method only called in constructor because the bullet
     // moves linearly and in a straight line
     public void rotate() {
-        baseSprite.rotate(direction.angleDeg());
+        rotation = direction.angleDeg();
+        baseSprite.rotate(rotation);
     }
 
     @Override

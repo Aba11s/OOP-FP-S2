@@ -9,24 +9,24 @@ import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.ParticleHandler;
 
-public class ImpactParticle extends Particle {
-    public ImpactParticle(Texture texture, int cols, int rows, Vector2 center,
-                          float scale, float alpha, float speed, boolean loop,
-                          Stage stage) {
+public class AnimatedParticle extends Particle {
+    public AnimatedParticle(Texture texture, int cols, int rows, Vector2 center,
+                            float scale, float alpha, float speed, boolean loop,
+                            Stage stage) {
         super(texture, cols, rows, center, scale, alpha, speed, loop, stage);
     }
 
     @Override
-    public void animate() {
+    public void animate(float delta) {
         sprite.setScale(scale);
         sprite.setAlpha(alpha);
 
         if(frameIndex < regions.length) {
             sprite.setRegion(regions[frameIndex]);
-            frameIncrement += speed/60f;
+            frameIncrement += speed * delta;
             frameIndex = (int)frameIncrement;
         }
-        else if(frameIndex == regions.length) {
+        else {
             done = true;
         }
     }
@@ -41,7 +41,7 @@ public class ImpactParticle extends Particle {
     @Override
     public void update(float delta, Mouse mouse) {
         if(!done) {
-            animate();
+            animate(delta);
         }
         else {kill();}
     }

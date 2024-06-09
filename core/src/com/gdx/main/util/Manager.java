@@ -17,10 +17,26 @@ public class Manager extends AssetManager {
     }
 
     private void loadParticles() {
+        // basic shapes
+        super.load("textures/object/particle/circle.png", Texture.class);
+        super.load("textures/object/particle/hollow-circle.png", Texture.class);
+        super.load("textures/object/particle/hollow-circle-gradient.png", Texture.class);
+
+        // trail
         super.load("textures/object/particle/particle-trail-1.png", Texture.class);
+
+        // projectile impact
+        super.load("textures/object/particle/bullet-impact-sprite-1.png", Texture.class);
+        super.load("textures/object/particle/bullet-impact-ani-explosion-1.png", Texture.class);
+        super.load("textures/object/particle/bullet-impact-ani-explosion-2.png", Texture.class);
+
+        super.load("textures/object/particle/engine-particle-1.png", Texture.class);
+        super.load("textures/object/particle/engine-particle-2.png", Texture.class);
     }
 
     private void loadEntities() {
+        super.load("textures/object/entity/player/player-pointer.png", Texture.class);
+
         super.load("textures/object/entity/enemy/scout-2.png",Texture.class);
         super.load("textures/object/entity/enemy/fighter-2.png",Texture.class);
         super.load("textures/object/entity/enemy/bomber-2.png",Texture.class);

@@ -111,7 +111,7 @@ public class HealthBar extends Actor implements Debuggable {
 
         // updates red health bar size
         if(currentBarLength < transitionBarLength) {
-            transitionBarLength -= 300 * delta;
+            transitionBarLength -= 50 * delta;
         } else {transitionBarLength = currentBarLength;}
         transitionBar.setOrigin(0,0);
         transitionBar.setScale(transitionBarLength, barHeight);

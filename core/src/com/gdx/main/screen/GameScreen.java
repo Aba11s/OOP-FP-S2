@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.gdx.main.Core;
+import com.gdx.main.helper.actor.custom_items.CustomText;
 import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.display.Background;
@@ -18,6 +19,7 @@ import com.gdx.main.screen.game.display.hud.HUD;
 import com.gdx.main.screen.game.handler.*;
 import com.gdx.main.screen.game.object.entity.GameEntity;
 import com.gdx.main.screen.game.object.entity.Player;
+import com.gdx.main.screen.game.object.particle.FadeParticle;
 import com.gdx.main.screen.game.stage.GameStage;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
@@ -27,6 +29,8 @@ public class GameScreen implements Screen, Buildable {
     boolean paused = false;
     boolean end = false;
     float delta;
+    float timeElapsed = 0;
+    int secondsElapsed = 0;
 
     Core core;
     Manager manager;
@@ -43,7 +47,7 @@ public class GameScreen implements Screen, Buildable {
     ProjectileHandler projectileHandler;
     ParticleHandler particleHandler;
     CollisionHandler collisionHandler;
-    EventHandler eventHandler;
+
 
     // Stage
     GameStage backStage; // backgrounds
@@ -65,11 +69,14 @@ public class GameScreen implements Screen, Buildable {
     PauseMenu pauseMenu;
     EndMenu endMenu;
 
-    // misc
-    float beginTimer = 3f;
-    boolean flag1 = false;
+    CustomText beginText;
 
-    Music music = Gdx.audio.newMusic(Gdx.files.internal("audio/music/War.ogg"));
+    // event flags
+    boolean startFlag;
+    boolean beginFlag;
+    boolean begin2Flag;
+
+    Music music = Gdx.audio.newMusic(Gdx.files.internal("audio/music/cybergrind.ogg"));
 
     public GameScreen(Core core, Manager manager, Settings gs,
                       Viewport viewport, OrthographicCamera camera,
@@ -84,29 +91,11 @@ public class GameScreen implements Screen, Buildable {
         this.stats = stats;
 
         build();
-
-        // music
-        music.play();
-        music.setVolume(0.1f);
-        music.setPosition(39.5f);
     }
 
     public void setBackground(Background background) {
         this.background = background;
         this.background.addActor(backStage);
-    }
-
-    private void beginGame(float delta) {
-
-        if(beginTimer >= 3) {
-            // load UI
-        }
-        else if(beginTimer > 1.5) {
-
-        }
-
-        if(beginTimer <= 0) {flag1 = true;}
-        beginTimer -= delta;
     }
 
     @Override
@@ -143,11 +132,43 @@ public class GameScreen implements Screen, Buildable {
         endMenu = new EndMenu(this, endStage, viewport, gs, manager, stats);
     }
 
+    private void sequenceStart() {
+        switch (secondsElapsed) {
+            case 1:
+                if(!startFlag) {
+                    startFlag = true;
+                }
+                break;
+            case 2:
+                // BEGIN
+                if(!beginFlag) {
+                    music.play();
+                    music.play();
+                    music.setVolume(0.05f);
+                    music.setLooping(true);
+
+                    hud.showBeginText();
+
+                    beginFlag = true;
+                }
+                break;
+
+            case 3:
+                // END BEGIN
+                if(!begin2Flag) {
+                    hud.fadeBeginText();
+                    begin2Flag = true;
+                }
+        }
+    }
+
 
     private void pauseGame(float delta) {
         // if escape key is pressed pause/resume game
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {setPaused(!paused);}
         this.delta = (paused) ? 0 : delta;
+        timeElapsed += this.delta;
+        secondsElapsed = (int) timeElapsed;
 
         if(paused && !end) {pauseMenu.update(delta, mouse);}
     }
@@ -169,6 +190,8 @@ public class GameScreen implements Screen, Buildable {
     }
 
     public void switchScreen() {
+        stats.finalizeHighScore();
+
         core.setScreen(core.menuScreen);
 
         // clear objects
@@ -178,13 +201,22 @@ public class GameScreen implements Screen, Buildable {
         debugger.clear();
 
         core.menuScreen.setBackground(background);
-        stats.finalizeHighScore();
+    }
+
+    private void keyInputs() {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.J)) {
+            stats.addScore(1000);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.K)) {
+            stats.resetHighScore();
+        }
     }
 
     private void update(float delta) {
         pauseGame(delta);
         endGame(this.delta);
         mouse.update();
+        keyInputs();
 
         // handlers
         projectileHandler.update(this.delta);
@@ -198,8 +230,8 @@ public class GameScreen implements Screen, Buildable {
         // hud & ui
         hud.update(this.delta, mouse);
 
-        // misc
-        if(!flag1) {beginGame(this.delta);}
+        // event sequence
+        sequenceStart();
     }
 
     @Override
@@ -240,7 +272,8 @@ public class GameScreen implements Screen, Buildable {
 
     @Override
     public void hide() {
-        //this.dispose();
+        music.dispose();
+        this.dispose();
     }
 
     @Override

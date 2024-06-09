@@ -10,22 +10,42 @@ import com.gdx.main.helper.debug.Debugger;
 import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.ParticleHandler;
 
-public class TrailParticle extends Particle {
+public class FadeParticle extends Particle{
 
-    private final float fadeSpeed;
-    public TrailParticle(Texture texture, int cols, int rows, Vector2 center,
-                         float scale, float alpha, float speed, float fadeSpeed, boolean loop,
-                         Stage stage) {
+    float fadeSpeed;
+    float scaleSpeed;
+    float initialScale;
+    float rotation;
+    Color color;
+
+    public FadeParticle(Texture texture, int cols, int rows, Vector2 center,
+                        float scale, float scaleSpeed,
+                        float alpha, float fadeSpeed,
+                        float speed , boolean loop,
+                        float rotation, Color color,
+                        Stage stage) {
         super(texture, cols, rows, center, scale, alpha, speed, loop, stage);
 
+        this.initialScale = scale;
+        this.scaleSpeed = scaleSpeed;
         this.fadeSpeed = fadeSpeed;
+
+        sprite.setRotation(rotation);
+        sprite.setColor(color);
+        sprite.setAlpha(alpha);
     }
 
     @Override
-    public void animate(float delta) {}
+    public void animate(float delta) {
+        scale += scaleSpeed * delta;
+        alpha += fadeSpeed * delta;
 
-    public void setColor(Color color) {
-        sprite.setColor(color);
+        if(alpha <= 0) {
+            done = true;
+        } else {
+            sprite.setScale(scale);
+            sprite.setAlpha(alpha);
+        }
     }
 
     @Override
@@ -37,11 +57,8 @@ public class TrailParticle extends Particle {
 
     @Override
     public void update(float delta, Mouse mouse) {
-        alpha -= fadeSpeed * delta;
-        sprite.setAlpha(alpha);
-
-        if(alpha <= 0) {done = true;}
-        if(done) {kill();}
+        if(!done) {animate(delta);}
+        else {kill();}
     }
 
     @Override

@@ -16,6 +16,7 @@ import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.object.cannon.BasicCannon;
 import com.gdx.main.screen.game.object.cannon.Cannon;
+import com.gdx.main.screen.game.object.cannon.FighterCannon;
 import com.gdx.main.screen.game.object.particle.TrailParticle;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
@@ -62,7 +63,7 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
         direction.set(target).nor();
 
         // Cannon setup
-        cannon = new BasicCannon(false, center, new Vector2(0,5), stage, subStage, gs, manager);
+        cannon = new FighterCannon(false, center, new Vector2(0,5), stage, subStage, gs, manager);
         // Cannon settings
         cannon.setSettings(gs.fighterFireRate);
         cannon.setSFX("audio/sfx/laser-1.wav", 0.02f, 0.5f);
@@ -132,7 +133,7 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
     private void animateDeath() {
         baseSprite.setRegion(baseRegions[frameIndex]);
         if(frameIndex < 8) {
-            frameIncrement += 0.5f;
+            frameIncrement += 0.5f  * 60 * delta;
             frameIndex = (int)frameIncrement;
         } else {
             kill();
@@ -195,10 +196,12 @@ public class EnemyFighter extends com.gdx.main.screen.game.object.entity.GameEnt
     }
 
     public void spawnParticle() {
-        Vector2 particleCenter = new Vector2(center);
-        Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
-        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
-                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed/2, false, subStage).setColor(Color.FIREBRICK);;
+        if(delta != 0) {
+            Vector2 particleCenter = new Vector2(center);
+            Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
+            new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                    gs.trailScale, 0.5f, 0, gs.trailFadeSpeed/2, false, subStage).setColor(Color.FIREBRICK);;
+        }
     }
 
     @Override

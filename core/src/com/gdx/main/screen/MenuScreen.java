@@ -45,6 +45,7 @@ public class MenuScreen implements Screen, Buildable {
 
     // Text
     CustomText headText;
+    CustomText highScoreText;
     CustomText playText;
     CustomText exitText;
 
@@ -56,7 +57,7 @@ public class MenuScreen implements Screen, Buildable {
     float transitionTimer = 1.5f; // in seconds
 
     // Sound
-
+    Music music = Gdx.audio.newMusic(Gdx.files.internal("audio/music/menu_music.ogg"));
 
     public MenuScreen(Core core, Manager manager, Settings gs,
                       Viewport viewport, OrthographicCamera camera,
@@ -74,6 +75,10 @@ public class MenuScreen implements Screen, Buildable {
         batch1.setProjectionMatrix(camera.combined);
 
         build();
+
+        music.play();
+        music.setVolume(0.1f);
+        music.setLooping(true);
     }
 
     @Override
@@ -93,6 +98,20 @@ public class MenuScreen implements Screen, Buildable {
                 20,20,100, Color.WHITE);
         menuStage.addActor(headText);
         Debugger.add(headText);
+
+        // highscore text
+        highScoreText = new CustomText("HIGHSCORE : " + stats.getHighScore(), "fonts/Minecraft.ttf",
+                viewport.getWorldWidth()/2, viewport.getWorldHeight()- 180, true,
+                10, 10, 32, Color.YELLOW) {
+            @Override
+            public void action() {
+                setText("HIGHSCORE : " + stats.getHighScore());
+            }
+        };
+
+
+        menuStage.addActor(highScoreText);
+        Debugger.add(highScoreText);
 
         // start text button
         playText = new CustomText("START", "fonts/Minecraft.ttf",
@@ -159,6 +178,7 @@ public class MenuScreen implements Screen, Buildable {
         background.update(delta);
 
         headText.update(delta, mouse);
+        highScoreText.update(delta, mouse);
         playText.update(delta, mouse);
         exitText.update(delta, mouse);
 
@@ -210,11 +230,16 @@ public class MenuScreen implements Screen, Buildable {
 
         // reset score
         stats.resetScore();
+
+        // play music
+        music.play();
+        music.setVolume(0.1f);
+        music.setLooping(true);
     }
 
     @Override
     public void hide() {
-
+        music.stop();
     }
 
     @Override

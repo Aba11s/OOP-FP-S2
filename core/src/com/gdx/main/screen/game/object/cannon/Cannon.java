@@ -18,9 +18,10 @@ public abstract class Cannon {
 
     // position and rotation
     public Vector2 center;
+    public Vector2 baseOffset;
     public Vector2 offset;
-    protected Vector2 direction;
-    protected Vector2 spawnPos;
+    public Vector2 direction;
+    public Vector2 spawnPos;
     protected float offsetAngle;
 
     // settings
@@ -59,6 +60,7 @@ public abstract class Cannon {
         this.manager = manager;
         this.gs = gs;
         this.center = new Vector2(center);
+        this.baseOffset = new Vector2(offset);
         this.offset = new Vector2(offset);
         this.offsetAngle = this.offset.angleDeg() - 90;
         this.spawnPos = new Vector2();

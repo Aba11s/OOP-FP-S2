@@ -17,6 +17,8 @@ import com.gdx.main.helper.misc.Mouse;
 import com.gdx.main.screen.game.handler.EntityHandler;
 import com.gdx.main.screen.game.object.cannon.BasicCannon;
 import com.gdx.main.screen.game.object.cannon.Cannon;
+import com.gdx.main.screen.game.object.particle.EngineParticle;
+import com.gdx.main.screen.game.object.particle.FadeParticle;
 import com.gdx.main.screen.game.object.particle.TrailParticle;
 import com.gdx.main.screen.game.object.projectile.Projectile;
 import com.gdx.main.util.Manager;
@@ -44,6 +46,15 @@ public class Player extends GameEntity {
     private final float particleOffsetAngle1;
     private final float particleOffsetAngle2;
 
+    private float engineParticleDelay;
+    private float engineParticleTimer = 0;
+
+    // pointer
+    private Sprite pointerSprite;
+    private Vector2 pointerCenter, pointerOffset;
+    private float pointerScaleX, pointerScaleY;
+    private float pointerOffsetAngle;
+
 
     public Player(float x, float y, Vector2 initialDirection,
                   Viewport viewport, OrthographicCamera camera, Stage stage, Stage subStage,
@@ -54,10 +65,12 @@ public class Player extends GameEntity {
         acceleration = gs.playerAcceleration;
         rotationSpeed = gs.playerRotation;
         maxSpeed = gs.playerSpeed;
-        speedDecay = -0.012f * 60;
+        speedDecay = gs.playerSpeedDecay * 60;
         hp = gs.playerHP;
         dmg = 0;
+
         invincibleTimer = gs.playerInvTime;
+        engineParticleDelay = gs.playerEngineDelay;
 
         // initial velocity and direction during screen transition
         velocity.set(0f, maxSpeed);
@@ -77,6 +90,18 @@ public class Player extends GameEntity {
         particleOffset2 = new Vector2(-10, -5);
         particleOffsetAngle1 = particleOffset1.angleDeg();
         particleOffsetAngle2 = particleOffset2.angleDeg();
+        engineParticleTimer = 0;
+
+        // pointer
+        pointerSprite = new Sprite(manager.get("textures/object/entity/player/player-pointer.png", Texture.class));
+        pointerCenter = new Vector2(center);
+        pointerOffset = new Vector2(0, 120);
+        pointerOffsetAngle = pointerOffset.angleDeg();
+
+        pointerSprite.setAlpha(0.05f);
+        pointerSprite.setScale(0.35f, 2f);
+
+        spawnSpawnParticle();
     }
 
     public Vector2 getCenter() {
@@ -102,7 +127,7 @@ public class Player extends GameEntity {
 
     // checks if cannon should be fired
     private void checkFire() {
-        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+        if(Gdx.input.isButtonPressed(Input.Buttons.LEFT) && delta != 0) {
             cannon1.fire();
             cannon2.fire();
         }
@@ -130,6 +155,7 @@ public class Player extends GameEntity {
         if(entity.isActive && !isInvincible) {
             hp -= entity.dmg;
             isInvincible = true;
+            baseSprite.setColor(Color.RED);
         }
     }
 
@@ -138,6 +164,7 @@ public class Player extends GameEntity {
         if(!isInvincible) {
             hp -= projectile.damage;
             isInvincible = true;
+            baseSprite.setColor(Color.RED);
         }
     }
 
@@ -146,6 +173,12 @@ public class Player extends GameEntity {
             isInvincible = false;
             invincibleTimer = gs.playerInvTime;
         } else {invincibleTimer -= delta;}
+    }
+
+    private void regenHealth() {
+        if(hp < gs.playerHP) {
+            hp += gs.playerBaseRegen * delta;
+        }
     }
 
     @Override
@@ -165,6 +198,9 @@ public class Player extends GameEntity {
             // If button pressed is pressed, accelerate along the direction vector
             velocity.add(direction.x * acceleration * delta, direction.y * acceleration * delta);
             velocity.clamp(0, maxSpeed);
+
+            // spawns engine particle
+            spawnEngineParticle();
         }
         // reduce velocity by a percentage each iteration
         else {
@@ -215,25 +251,54 @@ public class Player extends GameEntity {
         baseSprite.setRotation(rotation);
     }
 
-    public void spawnParticle() {
-        Vector2 particleCenter = new Vector2(center);
-        Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
-        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
-                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage);
+    public void spawnTrailParticle() {
+        if(delta != 0) {
+            Vector2 particleCenter = new Vector2(center);
+            Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
+            new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                    gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage);
 
-        particleCenter.set(center);
-        particleSpawnPos.set(particleCenter.add(particleOffset2.setAngleDeg(direction.angleDeg() + particleOffsetAngle2 - 90)));
-        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
-                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage);
+            particleCenter.set(center);
+            particleSpawnPos.set(particleCenter.add(particleOffset2.setAngleDeg(direction.angleDeg() + particleOffsetAngle2 - 90)));
+            new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                    gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage);
+        }
+    }
+
+    private void spawnEngineParticle() {
+        if(engineParticleTimer > engineParticleDelay) {
+            EngineParticle engineParticle = new EngineParticle(
+                    manager.get("textures/object/particle/engine-particle-2.png"), 1,1,
+                    center, 0.2f, 1f, 1, -2f, 1, false, rotation, Color.CYAN, subStage);
+            engineParticle.setEntity(this, 0, -5);
+            engineParticleTimer = 0;
+        }
+    }
+
+    private void spawnSpawnParticle() {
+        new FadeParticle(
+                manager.get("textures/object/particle/hollow-circle.png"), 1,1,
+                center, 1, 10,
+                0.5f, -0.25f, 1, false, rotation, Color.WHITE, subStage
+        );
+    }
+
+    private void updatePointer() {
+        Vector2 center2 = new Vector2(center);
+        pointerCenter.set(center2.add(pointerOffset.setAngleDeg(direction.angleDeg() + pointerOffsetAngle - 90)));
+        pointerSprite.setCenter(pointerCenter.x, pointerCenter.y);
+        pointerSprite.setRotation(rotation);
     }
 
     @Override
     public void update(float delta, Mouse mouse) {
         this.delta = delta;
+        baseSprite.setColor(Color.WHITE);
 
         // if player is still alive
         if(isAlive) {
             updateInvincibility();
+            regenHealth();
 
             // update cannons
             cannon1.update(this.delta, center, direction);
@@ -246,7 +311,11 @@ public class Player extends GameEntity {
             wrapWorld();
 
             // particle
-            spawnParticle();
+            spawnTrailParticle();
+            engineParticleTimer += delta;
+
+            // pointer
+            updatePointer();
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.H)) {
@@ -256,6 +325,7 @@ public class Player extends GameEntity {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        pointerSprite.draw(batch);
         baseSprite.draw(batch);
     }
 

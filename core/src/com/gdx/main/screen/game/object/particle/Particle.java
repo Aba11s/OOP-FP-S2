@@ -68,7 +68,7 @@ public abstract class Particle extends Actor implements GameObject {
         Debugger.add(this);
     }
 
-    public abstract void animate(); // iterates over array
+    public abstract void animate(float delta); // iterates over array
 
     public abstract void kill(); // deletes all references to particle
 

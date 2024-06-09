@@ -3,7 +3,7 @@ package com.gdx.main.util;
 public class Settings {
 
     // -- Game settings -- //
-    public float initialSpawnDelay = 5f;
+    public float initialSpawnDelay = 2.5f;
 
     // -- Score settings -- //
     public int scoutScore = 10;
@@ -18,20 +18,24 @@ public class Settings {
 
     // PLAYER
     public int playerSpawnSize = 0;
+    public float playerRegen = 0.06f;
+    public float playerBaseRegen = 3f;
 
     public float playerFireRate = 4f;
     public float playerAcceleration = 500f;
     public float playerSpeed = 220f;
+    public float playerSpeedDecay = -0.008f;
     public float playerRotation = 250f;
-    public float playerHP = 100f;
+    public float playerHP = 200f;
     public float playerDMG = 0;
 
     public float playerInvTime = 0.2f;
+    public float playerEngineDelay = 0.15f;
 
 
     // SCOUT
-    public int scoutWeight = 120;
-    public int scoutSpawnNumber = 10;
+    public int scoutWeight = 100;
+    public int scoutSpawnNumber = 5;
     public int scoutSpawnSize = 1;
 
     public float scoutSpeed = 120f;
@@ -42,7 +46,7 @@ public class Settings {
 
     // FIGHTER
     public int fighterWeight = 40;
-    public int fighterSpawnNumber = 4;
+    public int fighterSpawnNumber = 2;
     public int fighterSpawnSize = 5;
 
     public float fighterFireRate = .25f;

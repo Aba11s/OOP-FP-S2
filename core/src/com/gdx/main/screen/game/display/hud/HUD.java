@@ -26,6 +26,7 @@ public class HUD extends Menu {
     ClockDisplay clockDisplay;
     ScoreDisplay scoreDisplay;
     HealthBar healthBar;
+    BeginText beginText;
 
     // Player
     Player player;
@@ -38,7 +39,16 @@ public class HUD extends Menu {
         clockDisplay = new ClockDisplay(stage, viewport, gs, manager, stats);
         scoreDisplay = new ScoreDisplay(stage, viewport, gs, manager, stats);
         healthBar = new HealthBar(player, stage, viewport, gs, manager, stats);
+        beginText = new BeginText(stage, viewport, gs, manager, stats);
 
+    }
+
+    public void showBeginText() {
+        beginText.alpha = 1;
+    }
+
+    public void fadeBeginText() {
+        beginText.decreaseAlpha = true;
     }
 
     @Override
@@ -46,6 +56,7 @@ public class HUD extends Menu {
         clockDisplay.update(delta);
         scoreDisplay.update(delta);
         healthBar.update(delta);
+        beginText.update(delta);
     }
 
 

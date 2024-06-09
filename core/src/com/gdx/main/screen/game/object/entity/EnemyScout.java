@@ -118,7 +118,7 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
     private void animateDeath() {
         baseSprite.setRegion(baseRegions[frameIndex]);
         if(frameIndex < 8) {
-            frameIncrement += 0.5f;
+            frameIncrement += 0.5f * 60 * delta;
             frameIndex = (int)frameIncrement;
         } else {
             kill();
@@ -173,11 +173,13 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
         baseSprite.setRotation(rotation);
     }
 
-    public void spawnParticle() {
-        Vector2 particleCenter = new Vector2(center);
-        Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
-        new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
-                gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage).setColor(Color.FIREBRICK);
+    public void spawnTrailParticle() {
+        if(delta != 0) {
+            Vector2 particleCenter = new Vector2(center);
+            Vector2 particleSpawnPos = new Vector2(particleCenter.add(particleOffset1.setAngleDeg(direction.angleDeg() + particleOffsetAngle1 - 90)));
+            new TrailParticle(manager.get("textures/object/particle/particle-trail-1.png"), 1, 1, particleSpawnPos,
+                    gs.trailScale, 0.5f, 0, gs.trailFadeSpeed, false, subStage).setColor(Color.FIREBRICK);
+        }
     }
 
     @Override
@@ -188,7 +190,7 @@ public class EnemyScout extends com.gdx.main.screen.game.object.entity.GameEntit
             setActive();
             rotate();
             move();
-            spawnParticle();
+            spawnTrailParticle();
             if(hp <= 0) {
                 isAlive = false;
                 isActive = false;

@@ -5,16 +5,17 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.gdx.main.screen.game.object.projectile.BasicBullet;
+import com.gdx.main.screen.game.object.projectile.FighterBullet;
 import com.gdx.main.util.Manager;
 import com.gdx.main.util.Settings;
 
-public class BasicCannon extends Cannon {
+public class FighterCannon extends Cannon {
 
-    public BasicCannon(boolean isFriendly, Vector2 center, Vector2 offset,
+    public FighterCannon(boolean isFriendly, Vector2 center, Vector2 offset,
                        Stage stage, Stage subStage, Settings gs, Manager manager) {
         super(isFriendly, center, offset, stage, subStage, gs, manager);
 
-        fireRate = gs.playerFireRate;
+        fireRate = gs.fighterFireRate;
 
         shootSFX = Gdx.audio.newSound(Gdx.files.internal("audio/sfx/laser-1.wav"));
         volume = 0.025f;
@@ -41,7 +42,7 @@ public class BasicCannon extends Cannon {
 
             // creates new bullet - this settings by default
             // call setter methods to change variables
-            BasicBullet newBullet = new BasicBullet(
+            FighterBullet newBullet = new FighterBullet(
                     isFriendly ,spawnPos.x, spawnPos.y, size,
                     direction, stage, subStage, gs, manager);
 
@@ -79,4 +80,5 @@ public class BasicCannon extends Cannon {
         this.center.set(center);
         this.direction.set(direction);
     }
+
 }
